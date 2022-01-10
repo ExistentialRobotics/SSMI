@@ -7,7 +7,7 @@
     <img align="center" src="docs/media/cri.png" width="150" alt="cri">
   </a>
   <a href="https://ucsd.edu/">
-    <img align="right" src="docs/media/ucsd.png" width="100" alt="ucsd">
+    <img align="right" src="docs/media/ucsd.png" width="210" alt="ucsd">
   </a>
 </div>
 
