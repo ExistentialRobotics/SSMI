@@ -1,0 +1,16 @@
+octomap:
+    pointcloud_topic: "/semantic_pcl/semantic_pcl"
+    world_frame_id: "world"
+    resolution: 0.55
+    max_range: 16.0
+    raycast_range: 15.0
+    clamping_thres_min: 0.0001
+    clamping_thres_max: 0.9999
+    occupancy_thres: 0.5
+    prob_hit: 0.7
+    prob_miss: 0.4
+    psi: 1
+    phi: -0.1
+    min_ground_z: 1
+    max_ground_z: 3.5
+    save_path: /your_path/map_1.ot
