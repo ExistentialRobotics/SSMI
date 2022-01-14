@@ -20,7 +20,7 @@ S2MI is implemented as two ROS packages, which can be built on x86-64 and ARM-ba
 - Autonomous exploration using Semantic Shannon Mutual Information ([S2MI-Planning](https://github.com/ExistentialRobotics/S2MI/tree/master/S2MI-Planning))
 
 <p align="center">
-    <a href="">
+    <a href="https://www.youtube.com/embed/KosSp3znqFo">
     <img src="docs/media/s2mi_thumbnail.png" alt="S2MI">
     </a>
 </p>
