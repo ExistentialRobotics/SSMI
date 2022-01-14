@@ -38,17 +38,15 @@ If you found this work useful, we would appreciate if you could cite our work:
   booktitle={2021 IEEE International Conference on Robotics and Automation (ICRA)}, 
   title={Active Bayesian Multi-class Mapping from Range and Semantic Segmentation Observations}, 
   year={2021},
-  volume={},
-  number={},
   pages={1-7}
 ```
 
-- [2] A. Asgharivaskasi, N. Atanasov. [**Active Bayesian Multi-class Mapping from Range and Semantic Segmentation Observations**](https://arxiv.org/abs/2112.04063). [arXiv:2112.04063
+- [2] A. Asgharivaskasi, N. Atanasov. [**Semantic OcTree Mapping and Shannon Mutual Information Computation for Robot Exploration**](https://arxiv.org/abs/2112.04063). [arXiv:2112.04063
 ](https://arxiv.org/abs/2112.04063).
  
  ```bibtex
 @InProceedings{Asgharivaskasi-journal,
-  title = {Active Bayesian Multi-class Mapping from Range and Semantic Segmentation Observations},
+  title = {Semantic OcTree Mapping and Shannon Mutual Information Computation for Robot Exploration},
   author = {A. Asgharivaskasi, N. Atanasov},
   year = {2021},
   booktitle = {arxiv},
