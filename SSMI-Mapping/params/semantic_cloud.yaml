@@ -1,0 +1,18 @@
+# Camera intrinsic matrix parameters (OpenCV)
+camera:
+  fx: 32.62475665119548
+  fy: 32.62475665119548
+  cx: 40.0
+  cy: 30.0
+
+  width: 80
+  height: 60
+
+semantic_pcl:
+  color_image_topic: "/husky/camera/image"
+  semantic_image_topic: "/husky/camera/semantic_image"
+  depth_image_topic: "/husky/camera/depth"
+  point_type: 0
+  frame_id: "husky/camera"
+  depth_noise_std: 0.0
+  true_class_prob: 1.0
