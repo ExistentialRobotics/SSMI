@@ -11,13 +11,13 @@
   </a>
 </div>
 
-# Semantic Shannon Mutual Information (S2MI)
+# Semantic Shannon Mutual Information (SSMI)
 
 S2MI is a library for autonomous robot exploration using a stream of depth and semantic segmentation images as the input to build a semantically annotated OctoMap in real-time.
 
 S2MI is implemented as two ROS packages, which can be built on x86-64 and ARM-based processors:
-- Semantic OctoMap implementation for building probabilistic multi-class maps of an environment ([S2MI-Mapping](https://github.com/ExistentialRobotics/S2MI/tree/master/S2MI-Mapping))
-- Autonomous exploration using Semantic Shannon Mutual Information ([S2MI-Planning](https://github.com/ExistentialRobotics/S2MI/tree/master/S2MI-Planning))
+- Semantic OctoMap implementation for building probabilistic multi-class maps of an environment ([SSMI-Mapping](https://github.com/ExistentialRobotics/SSMI/tree/master/SSMI-Mapping))
+- Autonomous exploration using Semantic Shannon Mutual Information ([SSMI-Planning](https://github.com/ExistentialRobotics/SSMI/tree/master/SSMI-Planning))
 
 <p align="center">
     <a href="https://www.youtube.com/embed/KosSp3znqFo">
@@ -35,7 +35,7 @@ If you found this work useful, we would appreciate if you could cite our work:
 ```bibtex
 @InProceedings{Asgharivaskasi-ICRA21,
   author={Asgharivaskasi, Arash and Atanasov, Nikolay},
-  booktitle={2021 IEEE International Conference on Robotics and Automation (ICRA)}, 
+  booktitle={IEEE International Conference on Robotics and Automation (ICRA)}, 
   title={Active Bayesian Multi-class Mapping from Range and Semantic Segmentation Observations}, 
   year={2021},
   pages={1-7}
