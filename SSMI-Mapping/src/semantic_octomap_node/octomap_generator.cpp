@@ -78,9 +78,9 @@ void OctomapGenerator<CLOUD, OCTREE>::insertPointCloud(const pcl::PCLPointCloud2
     if(raycast_cloud.size() > 0)
         octomap_.insertPointCloud(raycast_cloud, origin, raycast_range_, true);
     
-    // updates inner node occupancy and colors
+    /* updates inner node occupancy and colors
     if(endpoint_count > 0)
-        octomap_.updateInnerOccupancy();
+        octomap_.updateInnerOccupancy();*/
 }
 
 template<class CLOUD, class OCTREE>

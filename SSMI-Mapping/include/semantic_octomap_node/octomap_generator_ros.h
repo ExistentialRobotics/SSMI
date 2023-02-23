@@ -69,6 +69,7 @@ protected:
     float occupancy_thres_; ///<Minimum occupancy probability for a node to be considered as occupied
     float prob_hit_;  ///<Hit probability of sensor
     float prob_miss_; ///<Miss probability of sensor
+    bool publish_2d_map;
     double min_ground_z;
     double max_ground_z;
     octomap_msgs::Octomap map_msg_; ///<ROS octomap message

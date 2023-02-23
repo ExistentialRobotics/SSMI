@@ -4,17 +4,16 @@ from __future__ import print_function
 
 import sys
 import rospy
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge, CvBridgeError
-
 import numpy as np
-
-from sensor_msgs.msg import PointCloud2
-from semantic_sensor import PointType, SemanticPclGenerator
+import cv2
 import message_filters
 import time
 
-import cv2
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
+from skimage.transform import resize
+from sensor_msgs.msg import PointCloud2
+from semantic_sensor import PointType, SemanticPclGenerator
 
 
 class SemanticCloud:
@@ -51,7 +50,6 @@ class SemanticCloud:
         self.depth_noise_std = rospy.get_param('/semantic_pcl/depth_noise_std')
         self.true_class_prob = rospy.get_param('/semantic_pcl/true_class_prob')
         if self.depth_noise_std > 0 or self.true_class_prob < 1:
-            from skimage.transform import resize
             self.noisy_obs = True
             num_classes = rospy.get_param('/class_labels/num_classes')
             self.class_colors = []
@@ -92,16 +90,16 @@ class SemanticCloud:
             print(e)
 
         # Resize depth
-        #if depth_img.shape[0] is not self.img_height or depth_img.shape[1] is not self.img_width:
-        #    depth_img = resize(depth_img, (self.img_height, self.img_width), order = 0, mode = 'reflect',
-        #                       anti_aliasing=False, preserve_range = True) # order = 0, nearest neighbour
-        #    depth_img = depth_img.astype(np.float32)
+        if depth_img.shape[0] is not self.img_height or depth_img.shape[1] is not self.img_width:
+            depth_img = resize(depth_img, (self.img_height, self.img_width), order = 0, mode = 'reflect',
+                               anti_aliasing=False, preserve_range = True) # order = 0, nearest neighbour
+            depth_img = depth_img.astype(np.float32)
 
         # Resize semantic
-        #if semantic_img.shape[0] is not self.img_height or semantic_img.shape[1] is not self.img_width:
-        #    semantic_img = resize(semantic_img, (self.img_height, self.img_width), order = 0, mode = 'reflect',
-        #                          anti_aliasing=False, preserve_range = True) # order = 0, nearest neighbour
-        #    semantic_img = semantic_img.astype(np.uint8)
+        if semantic_img.shape[0] is not self.img_height or semantic_img.shape[1] is not self.img_width:
+            semantic_img = resize(semantic_img, (self.img_height, self.img_width), order = 0, mode = 'reflect',
+                                  anti_aliasing=False, preserve_range = True) # order = 0, nearest neighbour
+            semantic_img = semantic_img.astype(np.uint8)
         
         # Add noise
         if self.noisy_obs is True:

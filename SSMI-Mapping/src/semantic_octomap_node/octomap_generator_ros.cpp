@@ -40,6 +40,7 @@ void OctomapGeneratorNode::reset()
     nh_.getParam("/octomap/prob_miss", prob_miss_);
     nh_.getParam("/octomap/psi", psi_);
     nh_.getParam("/octomap/phi", phi_);
+    nh_.getParam("/octomap/publish_2d_map", publish_2d_map);
     nh_.getParam("/octomap/min_ground_z", min_ground_z);
     nh_.getParam("/octomap/max_ground_z", max_ground_z);
     octomap_generator_->setClampingThresMin(clamping_thres_min_);
@@ -106,6 +107,7 @@ void OctomapGeneratorNode::insertCloudCallback(const sensor_msgs::PointCloud2::C
     Eigen::Matrix4f sensorToWorld;
     pcl_ros::transformAsMatrix(sensorToWorldTf, sensorToWorld);
     octomap_generator_->insertPointCloud(cloud, sensorToWorld);
+    
     // Publish full octomap
     map_msg_.header.frame_id = world_frame_id_;
     map_msg_.header.stamp = cloud_msg->header.stamp;
@@ -115,7 +117,8 @@ void OctomapGeneratorNode::insertCloudCallback(const sensor_msgs::PointCloud2::C
         ROS_ERROR("Error serializing full OctoMap");
     
     // Publish 2D occupancy map
-    publish2DOccupancyMap(octomap_generator_->getOctree(), cloud_msg->header.stamp, world_frame_id_);
+    if (publish_2d_map)
+        publish2DOccupancyMap(octomap_generator_->getOctree(), cloud_msg->header.stamp, world_frame_id_);
 }
 
 void OctomapGeneratorNode::publish2DOccupancyMap(const SemanticOctree* octomap,
@@ -198,7 +201,7 @@ void OctomapGeneratorNode::publish2DOccupancyMap(const SemanticOctree* octomap,
 
 bool OctomapGeneratorNode::save(const char* filename) const
 {
-    octomap_generator_->save(filename);
+    return octomap_generator_->save(filename);
 }
 
 int main(int argc, char** argv)

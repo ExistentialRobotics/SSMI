@@ -1,7 +1,6 @@
 #ifndef SEMANTIC_OCTOMAP_OCTOMAP_GENERATOR_BASE_H
 #define SEMANTIC_OCTOMAP_OCTOMAP_GENERATOR_BASE_H
 
-#include <pcl/PCLPointCloud2.h>
 #include <octomap/octomap.h>
 #include <semantic_octomap/RayRLE.h>
 

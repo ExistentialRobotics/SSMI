@@ -10,7 +10,7 @@ class PointType(Enum):
 
 
 class SemanticPclGenerator:
-    def __init__(self, intrinsic, width = 80, height = 60, frame_id = "husky/camera",
+    def __init__(self, intrinsic, width = 80, height = 60, frame_id = "/camera",
                  point_type = PointType.SEMANTIC):
         '''
         width: (int) width of input images
@@ -19,7 +19,7 @@ class SemanticPclGenerator:
         self.point_type = point_type
         self.intrinsic = intrinsic
         # Allocate arrays
-        x_index = np.array([range(width)*height], dtype = '<f4')
+        x_index = np.array([list(range(width))*height], dtype = '<f4')
         y_index = np.array([[i]*width for i in range(height)], dtype = '<f4').ravel()
         self.xy_index = np.vstack((x_index, y_index)).T # x,y
         self.xyd_vect = np.zeros([width*height, 3], dtype = '<f4') # x,y,depth
@@ -65,9 +65,6 @@ class SemanticPclGenerator:
         \param depth_img (numpy array float32 2d)
         [x, y, Z] = [X, Y, Z] * intrinsic.T
         """
-        
-        np.place(depth_img, np.isnan(depth_img), 0) # Handle nan values
-        
         np.place(depth_img, depth_img == 0, 100000) # Handle maximum range measurements
         
         bgr_img = bgr_img.view('<u1')
@@ -89,7 +86,7 @@ class SemanticPclGenerator:
     def make_ros_cloud(self, stamp):
         # Assign data to ros msg
         # We should send directly in bytes, send in as a list is too slow, numpy tobytes is too slow, takes 0.3s.
-        self.cloud_ros.data = np.getbuffer(self.ros_data.ravel())[:]
+        self.cloud_ros.data = self.ros_data.ravel().tobytes()
         self.cloud_ros.header.stamp = stamp
         return self.cloud_ros
 

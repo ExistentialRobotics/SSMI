@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
 <launch>
 
   <rosparam file="$(find semantic_octomap)/params/semantic_cloud.yaml" command="load"/>
