@@ -21,7 +21,7 @@ S2MI is implemented as two ROS packages, which can be built on x86-64 and ARM-ba
 
 <p align="center">
     <a href="https://www.youtube.com/embed/KosSp3znqFo">
-    <img src="docs/media/s2mi_thumbnail.png" alt="S2MI">
+    <img src="docs/media/1.png" alt="S2MI">
     </a>
 </p>
 
