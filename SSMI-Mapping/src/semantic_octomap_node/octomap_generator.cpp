@@ -25,6 +25,18 @@ bool OctomapGenerator<CLOUD, OCTREE>::isUseSemanticColor()
 }
 
 template<class CLOUD, class OCTREE>
+void OctomapGenerator<CLOUD, OCTREE>::setWriteSemantics(bool write)
+{
+    octomap_.setWriteSemantics(write);
+}
+
+template<class CLOUD, class OCTREE>
+bool OctomapGenerator<CLOUD, OCTREE>::doesWriteSemantics()
+{
+    return octomap_.doesWriteSemantics();
+}
+
+template<class CLOUD, class OCTREE>
 void OctomapGenerator<CLOUD, OCTREE>::insertPointCloud(const pcl::PCLPointCloud2::Ptr& cloud, const Eigen::Matrix4f& sensorToWorld)
 {
     // Voxel filter to down sample the point cloud

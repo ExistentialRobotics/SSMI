@@ -41,16 +41,15 @@ If you found this work useful, we would appreciate if you could cite our work:
   pages={1-7}
 ```
 
-- [2] A. Asgharivaskasi, N. Atanasov. [**Semantic OcTree Mapping and Shannon Mutual Information Computation for Robot Exploration**](https://arxiv.org/abs/2112.04063). [arXiv:2112.04063
-](https://arxiv.org/abs/2112.04063).
+- [2] A. Asgharivaskasi, N. Atanasov. [**Semantic OcTree Mapping and Shannon Mutual Information Computation for Robot Exploration**](https://ieeexplore.ieee.org/abstract/document/10057106/). IEEE Transactions on Robotics (TRO), 2023.
  
  ```bibtex
-@InProceedings{Asgharivaskasi-journal,
-  title = {Semantic OcTree Mapping and Shannon Mutual Information Computation for Robot Exploration},
-  author = {A. Asgharivaskasi, N. Atanasov},
-  year = {2021},
-  booktitle = {arxiv},
-  pdf = {https://arxiv.org/pdf/2112.04063.pdf}
+@article{asgharivaskasi2023semantic,
+  title={Semantic octree mapping and {S}hannon mutual information computation for robot exploration},
+  author={Asgharivaskasi, Arash and Atanasov, Nikolay},
+  journal={IEEE Transactions on Robotics},
+  year={2023},
+  publisher={IEEE}
 }
 ```
 

@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <package>
   <name>semantic_octomap</name>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <description>Semantic OctoMap implementation</description>
 
-  <author email="aasghari@eng.ucsd.edu">Arash Asgharivaskasi</author>
+  <author email="aasghari@ucsd.edu">Arash Asgharivaskasi</author>
   
-  <maintainer email="aasghari@eng.ucsd.edu">Arash Asgharivaskasi</maintainer>
+  <maintainer email="aasghari@ucsd.edu">Arash Asgharivaskasi</maintainer>
 
   <license>ERL</license>
 

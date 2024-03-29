@@ -18,7 +18,7 @@ namespace octomap
     public:
 
         /// Default constructor
-        SemanticOcTreeNode() : ColorOcTreeNode(), semantics(), use_semantic_color(true){}
+        SemanticOcTreeNode() : ColorOcTreeNode(), semantics(), use_semantic_color(true), write_semantics(true){}
 
         /// Copy constructor
         SemanticOcTreeNode(const SemanticOcTreeNode& rhs)
@@ -62,6 +62,7 @@ namespace octomap
     protected:
         SEMANTICS semantics;
         bool use_semantic_color; ///<Whether use semantic color rather than rgb color
+        bool write_semantics; ///<Whether write semantic log-odds
     };
 
 
@@ -110,12 +111,12 @@ namespace octomap
     std::istream& SemanticOcTreeNode<SEMANTICS>::readData(std::istream &s) {
         s.read((char*) &value, sizeof(value)); // occupancy
         s.read((char*) &color, sizeof(Color)); // color
+        s.read((char*) &semantics, sizeof(SEMANTICS)); // semantic log-odds
         return s;
     }
 
     template<class SEMANTICS>
     std::ostream& SemanticOcTreeNode<SEMANTICS>::writeData(std::ostream &s) const {
-        //TODO adapt to show semantic colors
         s.write((const char*) &value, sizeof(value)); // occupancy
         if(use_semantic_color)
         {
@@ -124,6 +125,10 @@ namespace octomap
         }
         else
             s.write((const char*) &color, sizeof(Color)); // color
+        if(write_semantics)
+        {
+            s.write((const char*) &semantics, sizeof(SEMANTICS)); // semantic log-odds
+        }
         return s;
     }
 } // namespace octomap

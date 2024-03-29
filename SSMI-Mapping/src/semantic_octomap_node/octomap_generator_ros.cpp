@@ -18,6 +18,7 @@ OctomapGeneratorNode::OctomapGeneratorNode(ros::NodeHandle& nh): nh_(nh)
 
     reset();
     fullmap_pub_ = nh_.advertise<octomap_msgs::Octomap>("octomap_full", 1, true);
+    colormap_pub_ = nh_.advertise<octomap_msgs::Octomap>("octomap_color", 1, true);
     occ_map_pub_ = nh_.advertise<nav_msgs::OccupancyGrid>("occupancy_map_2D", 1, true);
     pointcloud_sub_ = new message_filters::Subscriber<sensor_msgs::PointCloud2> (nh_, pointcloud_topic_, 5);
     tf_pointcloud_sub_ = new tf::MessageFilter<sensor_msgs::PointCloud2> (*pointcloud_sub_, tf_listener_, world_frame_id_, 5);
@@ -62,10 +63,19 @@ bool OctomapGeneratorNode::toggleUseSemanticColor(std_srvs::Empty::Request& requ
         ROS_INFO("Using semantic color");
     else
         ROS_INFO("Using rgb color");
+    
+    octomap_generator_->setWriteSemantics(true);
     if (octomap_msgs::fullMapToMsg(*octomap_generator_->getOctree(), map_msg_))
         fullmap_pub_.publish(map_msg_);
     else
-        ROS_ERROR("Error serializing OctoMap");
+        ROS_ERROR("Error serializing full OctoMap");
+    
+    octomap_generator_->setWriteSemantics(false);
+    if (octomap_msgs::fullMapToMsg(*octomap_generator_->getOctree(), map_msg_))
+        colormap_pub_.publish(map_msg_);
+    else
+        ROS_ERROR("Error serializing color OctoMap");
+
     return true;
 }
 
@@ -111,10 +121,19 @@ void OctomapGeneratorNode::insertCloudCallback(const sensor_msgs::PointCloud2::C
     // Publish full octomap
     map_msg_.header.frame_id = world_frame_id_;
     map_msg_.header.stamp = cloud_msg->header.stamp;
+    
+    octomap_generator_->setWriteSemantics(true);
     if (octomap_msgs::fullMapToMsg(*octomap_generator_->getOctree(), map_msg_))
         fullmap_pub_.publish(map_msg_);
     else
         ROS_ERROR("Error serializing full OctoMap");
+    
+    octomap_generator_->setWriteSemantics(false);
+    if (octomap_msgs::fullMapToMsg(*octomap_generator_->getOctree(), map_msg_))
+        colormap_pub_.publish(map_msg_);
+    else
+        ROS_ERROR("Error serializing color OctoMap");
+
     
     // Publish 2D occupancy map
     if (publish_2d_map)

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(semantic_octomap)
 
+set(CMAKE_CXX_STANDARD 17)
+
 # SET OCTOMAP_OMP to disable/enable OPENMP (experimental for octomap, default disabled)
 SET(OCTOMAP_OMP FALSE CACHE BOOL "Enable/disable OpenMP parallelization")
 IF(DEFINED ENV{OCTOMAP_OMP})
@@ -61,15 +63,19 @@ set(LINK_LIBS
   ${PCL_LIBRARIES}
 )
 
-add_executable(semantic_octomap
- src/semantic_octomap_node/octomap_generator.cpp
- src/semantic_octomap_node/octomap_generator_ros.cpp
- src/semantic_octree/Semantics.cpp
-)
+add_library(semantic_octomap SHARED
+            src/semantic_octomap_node/octomap_generator.cpp
+            src/semantic_octree/Semantics.cpp)
 
 target_link_libraries(semantic_octomap ${LINK_LIBS})
 
-add_dependencies(semantic_octomap semantic_octomap_generate_messages_cpp)
+add_executable(semantic_octomap_node
+ src/semantic_octomap_node/octomap_generator_ros.cpp
+)
+
+target_link_libraries(semantic_octomap_node semantic_octomap ${LINK_LIBS})
+
+add_dependencies(semantic_octomap_node semantic_octomap_generate_messages_cpp)
 
 install(DIRECTORY
   launch
@@ -88,14 +94,16 @@ catkin_install_python(PROGRAMS
   scripts/semantic_sensor.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(TARGETS semantic_octomap
+install(TARGETS semantic_octomap_node semantic_octomap
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(DIRECTORY
-  include
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+  include/semantic_octomap_node
+  include/semantic_octree
+  include/semantic_point_cloud
+  DESTINATION "${CATKIN_PACKAGE_INCLUDE_DESTINATION}/.."
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
   )

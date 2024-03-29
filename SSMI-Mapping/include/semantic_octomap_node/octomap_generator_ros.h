@@ -52,7 +52,8 @@ protected:
     bool toggleUseSemanticColor(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response); ///<Function to toggle whether write semantic color or rgb color as when serializing octree
     bool querry_RLE(semantic_octomap::GetRLE::Request& request, semantic_octomap::GetRLE::Response& response);
     ros::NodeHandle nh_; ///<ROS handler
-    ros::Publisher fullmap_pub_; ///<ROS publisher for octomap message
+    ros::Publisher fullmap_pub_; ///<ROS publisher for full octomap message
+    ros::Publisher colormap_pub_; ///<ROS publisher for color octomap message
     ros::Publisher occ_map_pub_; ///<ROS publisher for 2D occupancy map message
     message_filters::Subscriber<sensor_msgs::PointCloud2>* pointcloud_sub_; ///<ROS subscriber for pointcloud message
     tf::MessageFilter<sensor_msgs::PointCloud2>* tf_pointcloud_sub_; ///<ROS tf message filter to sychronize the tf and pointcloud messages

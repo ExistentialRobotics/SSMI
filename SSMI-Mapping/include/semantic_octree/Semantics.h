@@ -103,21 +103,27 @@ namespace octomap
         }
 
         /// initialize semantics from observation
-        static SemanticsLogOdds initSemantics(ColorOcTreeNode::Color obs, float value,
+        static SemanticsLogOdds initSemantics(const ColorOcTreeNode::Color& obs, float value,
                                               float phi, float psi, float maxLogOdds, float minLogOdds);
 
         /// Perform fusion between two semantic log-odds
-        static SemanticsLogOdds semanticFusion(const SemanticsLogOdds l1, const SemanticsLogOdds l2);
+        static SemanticsLogOdds semanticFusion(const SemanticsLogOdds& l1, const SemanticsLogOdds& l2);
+        
+        static SemanticsLogOdds semanticFusion(const SemanticsLogOdds& l1, const SemanticsLogOdds& l2,
+                                               float consensus_weight, float maxLogOdds, float minLogOdds);
+
+        static SemanticsLogOdds semanticFusionInit(float value, const SemanticsLogOdds& node_semantics, float consensus_weight,
+                                                   float maxLogOdds, float minLogOdds, bool hostSemIsInit);
 
         /// Perform semantic fusion between a semantic log-odds and an observation
-        static SemanticsLogOdds fuseObs(const SemanticsLogOdds l, const ColorOcTreeNode::Color obs,
+        static SemanticsLogOdds fuseObs(const SemanticsLogOdds& l, const ColorOcTreeNode::Color& obs,
                                         float phi, float psi, float maxLogOdds, float minLogOdds);
                                         
         /// Perform semantic fusion between a semantic log-odds and a free observation
-        static SemanticsLogOdds fuseObsFree(const SemanticsLogOdds l, float phi, float minLogOdds);
+        static SemanticsLogOdds fuseObsFree(const SemanticsLogOdds& l, float phi, float minLogOdds);
         
         /// Obtain occupancy from semantic log-odds
-        static inline float getOccFromSem(const SemanticsLogOdds l) {
+        static inline float getOccFromSem(const SemanticsLogOdds& l) {
             float occOdds = (float) exp(l.others);
             for(int i = 0; i < 3; i++)
             {
@@ -125,6 +131,16 @@ namespace octomap
                     occOdds += (float) exp(l.data[i].logOdds);
             }
             return log(occOdds);
+        }
+        
+        static inline float clipLogOdds(float l, float maxLogOdds, float minLogOdds){
+            if (l > maxLogOdds)
+                return maxLogOdds;
+            
+            if (l < minLogOdds)
+                return minLogOdds;
+            
+            return l;
         }
     };
 

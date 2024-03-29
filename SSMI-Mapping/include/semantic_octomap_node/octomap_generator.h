@@ -83,6 +83,10 @@ public:
     virtual void setUseSemanticColor(bool use);
 
     virtual bool isUseSemanticColor();
+    
+    virtual void setWriteSemantics(bool write);
+
+    virtual bool doesWriteSemantics();
 
     virtual OCTREE* getOctree(){return &octomap_;}
 

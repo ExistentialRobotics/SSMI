@@ -64,6 +64,15 @@ namespace octomap {
     }
 
     template<class SEMANTICS>
+    void SemanticOcTree<SEMANTICS>::setWriteSemantics(bool write)
+    {
+        // Traverse all tree nodes
+        for(typename SemanticOcTree<SEMANTICS>::tree_iterator it = this->begin_tree(), end=this->end_tree(); it!= end; ++it)
+            it->write_semantics = write;
+    }
+
+
+    template<class SEMANTICS>
     SemanticOcTreeNode<SEMANTICS>* SemanticOcTree<SEMANTICS>::setNodeColor(const OcTreeKey& key,
                                                                            uint8_t r,
                                                                            uint8_t g,
@@ -142,6 +151,45 @@ namespace octomap {
     }
 
     template<class SEMANTICS>
+    SemanticOcTreeNode<SEMANTICS>* SemanticOcTree<SEMANTICS>::updateNode(const OcTreeKey& key, float node_value,
+                                                                         const ColorOcTreeNode::Color& node_color,
+                                                                         const SEMANTICS& node_semantics,
+                                                                         float consensus_weight, bool lazy_eval)
+    {
+        // early abort (no change will happen).
+        // may cause an overhead in some configuration, but more often helps
+        SemanticOcTreeNode<SEMANTICS>* leaf = this->search(key);
+        SEMANTICS output_sem;
+        float output_value;
+        // no change: node already at threshold
+        if (!checkNeedsUpdate(leaf, node_value, node_semantics, consensus_weight, output_sem, output_value))
+        {
+          return leaf;
+        }
+
+        bool createdRoot = false;
+        if (this->root == NULL){
+          this->root = new SemanticOcTreeNode<SEMANTICS>();
+          this->tree_size++;
+          createdRoot = true;
+        }
+
+        return updateNodeRecurs(this->root, createdRoot, key, 0, node_color, output_sem, output_value, lazy_eval);
+    }
+    
+    template<class SEMANTICS>
+    SemanticOcTreeNode<SEMANTICS>* SemanticOcTree<SEMANTICS>::updateNode(float x, float y, float z, float node_value,
+                                                                         const ColorOcTreeNode::Color& node_color,
+                                                                         const SEMANTICS& node_semantics,
+                                                                         float consensus_weight, bool lazy_eval)
+    {
+        OcTreeKey key;
+        if (!this->coordToKeyChecked(x, y, z, key))
+            return NULL;
+        return updateNode(key, node_value, node_color, node_semantics, consensus_weight, lazy_eval);
+    }
+
+    template<class SEMANTICS>
     SemanticOcTreeNode<SEMANTICS>* SemanticOcTree<SEMANTICS>::updateNode(const OcTreeKey& key, bool occupied,
                                                                          const ColorOcTreeNode::Color& class_obs,
                                                                          const ColorOcTreeNode::Color& color_obs,
@@ -176,6 +224,72 @@ namespace octomap {
         if (!this->coordToKeyChecked(x, y, z, key))
             return NULL;
         return updateNode(key, occupied, class_obs, color_obs, lazy_eval);
+    }
+
+    template<class SEMANTICS>
+    SemanticOcTreeNode<SEMANTICS>* SemanticOcTree<SEMANTICS>::updateNodeRecurs(SemanticOcTreeNode<SEMANTICS>* node, bool node_just_created, const OcTreeKey& key,
+                                                                               unsigned int depth, const ColorOcTreeNode::Color& node_color,
+                                                                               const SEMANTICS& output_sem, const float& output_value, bool lazy_eval)
+    {
+        bool created_node = false;
+
+        assert(node);
+
+        // follow down to last level
+        if (depth < this->tree_depth) {
+          unsigned int pos = computeChildIdx(key, this->tree_depth -1 - depth);
+          if (!this->nodeChildExists(node, pos)) {
+            // child does not exist, but maybe it's a pruned node?
+            if (!this->nodeHasChildren(node) && !node_just_created ) {
+              // current node does not have children AND it is not a new node 
+              // -> expand pruned node
+              this->expandNode(node);
+            }
+            else {
+              // not a pruned node, create requested child
+              this->createNodeChild(node, pos);
+              created_node = true;
+            }
+          }
+
+          if (lazy_eval)
+            return updateNodeRecurs(this->getNodeChild(node, pos), created_node, key, depth+1, node_color, output_sem, output_value, lazy_eval);
+          else {
+            SemanticOcTreeNode<SEMANTICS>* retval = updateNodeRecurs(this->getNodeChild(node, pos), created_node, key, depth+1, node_color, output_sem, output_value, lazy_eval);
+            // prune node if possible, otherwise set own probability
+            // note: combining both did not lead to a speedup!
+            if (this->pruneNode(node)){
+              // return pointer to current parent (pruned), the just updated node no longer exists
+              retval = node;
+            } else {
+              node->updateSemanticsChildren();
+              node->updateColorChildren();
+            }
+
+            return retval;
+          }
+        }
+
+        // at last level, update node, end of recursion
+        else {
+          if (this->use_change_detection) {
+            bool occBefore = this->isNodeOccupied(node);
+            updateNodeLogOdds(node, node_color, output_sem, output_value);
+
+            if (node_just_created){  // new node
+              this->changed_keys.insert(std::pair<OcTreeKey,bool>(key, true));
+            } else if (occBefore != this->isNodeOccupied(node)) {  // occupancy changed, track it
+              KeyBoolMap::iterator it = this->changed_keys.find(key);
+              if (it == this->changed_keys.end())
+                this->changed_keys.insert(std::pair<OcTreeKey,bool>(key, false));
+              else if (it->second == false)
+                this->changed_keys.erase(it);
+            }
+          } else {
+            updateNodeLogOdds(node, node_color, output_sem, output_value);
+          }
+          return node;
+        }
     }
 
     template<class SEMANTICS>
@@ -261,6 +375,24 @@ namespace octomap {
     }
 
     template<class SEMANTICS>
+    void SemanticOcTree<SEMANTICS>::updateNodeLogOdds(SemanticOcTreeNode<SEMANTICS>* node,
+                                                      const ColorOcTreeNode::Color& node_color,
+                                                      const SEMANTICS& output_sem, const float& output_value)
+    {
+        // node color update
+        averageNodeColor(node, node_color.r, node_color.g, node_color.b);
+        // node semantics and occupancy update
+        if (output_sem.data[0].color != ColorOcTreeNode::Color(255,255,255))
+        {
+            node->setSemantics(output_sem);
+            float logOddsValue = SEMANTICS::getOccFromSem(output_sem);
+            node->setLogOdds(logOddsValue);
+        } else {
+            node->setLogOdds(output_value);
+        }
+    }
+
+    template<class SEMANTICS>
     void SemanticOcTree<SEMANTICS>::insertPointCloud(const Pointcloud& scan, const octomap::point3d& sensor_origin,
                                                      double maxrange, bool discretize)
     {
@@ -311,6 +443,77 @@ namespace octomap {
         {
             return false;
         } else {
+            return true;
+        }
+    }
+    
+    template<class SEMANTICS>
+    bool SemanticOcTree<SEMANTICS>::checkNeedsUpdate(const SemanticOcTreeNode<SEMANTICS>* node, float node_value, const SEMANTICS& node_semantics,
+                                                     float consensus_weight, SEMANTICS& output_sem, float& output_value)
+    {   
+        
+        ColorOcTreeNode::Color white_color(255,255,255);
+        bool inc_semantic_set = (node_semantics.data[0].color != white_color);
+        
+        if (node)
+        {
+            SEMANTICS sem = node->getSemantics();
+            
+            bool host_semantic_set = (sem.data[0].color != white_color);
+            
+            if (host_semantic_set && inc_semantic_set)
+            {
+                SEMANTICS fused_sem = SEMANTICS::semanticFusion(sem, node_semantics, consensus_weight, maxLogOddsTree, minLogOddsTree);
+                if (fused_sem == sem)
+                    return false;
+                else
+                {
+                    output_sem = fused_sem;
+                    return true;
+                }
+            }
+            
+            if (!host_semantic_set && inc_semantic_set)
+            {
+                output_sem = SEMANTICS::semanticFusionInit(node->getValue(), node_semantics, consensus_weight,
+                                                           maxLogOddsTree, minLogOddsTree, host_semantic_set);
+                return true;
+            }
+            
+            if (host_semantic_set && !inc_semantic_set)
+            {
+                output_sem = SEMANTICS::semanticFusionInit(node_value, sem, consensus_weight,
+                                                           maxLogOddsTree, minLogOddsTree, host_semantic_set);
+                return true;
+            }
+            
+            if (!host_semantic_set && !inc_semantic_set)
+            {
+                if (node->getValue() == minOccupancyLogOdds)
+                    return false;
+                else
+                {
+                    output_value = node->getValue() + consensus_weight * node_value;
+                    if (output_value < minOccupancyLogOdds)
+                        output_value = minOccupancyLogOdds;
+                    return true;
+                }
+            }
+        } else {
+            if (inc_semantic_set)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    if (node_semantics.data[i].color != white_color)
+                    {
+                        output_sem.data[i].color = node_semantics.data[i].color;
+                        output_sem.data[i].logOdds = consensus_weight * node_semantics.data[i].logOdds;
+                    } else {break;}
+                }
+                output_sem.others = consensus_weight * node_semantics.others;
+            } else {
+                output_value = consensus_weight * node_value;
+            }
             return true;
         }
     }

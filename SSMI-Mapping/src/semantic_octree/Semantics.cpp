@@ -17,7 +17,7 @@ namespace octomap
     }
 
     // Struct SemanticsLogOdds implementation  --------------------------------------
-    SemanticsLogOdds SemanticsLogOdds::initSemantics(const ColorOcTreeNode::Color obs, float value,
+    SemanticsLogOdds SemanticsLogOdds::initSemantics(const ColorOcTreeNode::Color& obs, float value,
                                                      float phi, float psi, float maxLogOdds, float minLogOdds)
     {
         SemanticsLogOdds output;
@@ -40,7 +40,7 @@ namespace octomap
     }
 
 
-    SemanticsLogOdds SemanticsLogOdds::semanticFusion(const SemanticsLogOdds l1, const SemanticsLogOdds l2)
+    SemanticsLogOdds SemanticsLogOdds::semanticFusion(const SemanticsLogOdds& l1, const SemanticsLogOdds& l2)
     {
         std::vector<ColorOcTreeNode::Color> v1, v2, v3;
         for(int i = 0; i < NUM_SEMANTICS; i++)
@@ -127,8 +127,126 @@ namespace octomap
 
         return output;
     }
+    
+    SemanticsLogOdds SemanticsLogOdds::semanticFusion(const SemanticsLogOdds& l1, const SemanticsLogOdds& l2,
+                                                      float consensus_weight, float maxLogOdds, float minLogOdds)
+    {
+        std::vector<ColorOcTreeNode::Color> v1, v2, v3;
+        for(int i = 0; i < NUM_SEMANTICS; i++)
+        {
+            if(l1.data[i].color != ColorOcTreeNode::Color(255,255,255))
+                v1.push_back(l1.data[i].color);
 
-    SemanticsLogOdds SemanticsLogOdds::fuseObs(const SemanticsLogOdds l, const ColorOcTreeNode::Color obs,
+            if(l2.data[i].color != ColorOcTreeNode::Color(255,255,255))
+                v2.push_back(l2.data[i].color);
+        }
+
+        v3 = v1;
+        for(int i = 0; i < v2.size(); i++)
+        {
+            bool exists = false;
+            for(int j = 0; j < v1.size(); j++)
+            {
+                if(v2[i] == v1[j])
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            if(exists == false)
+                v3.push_back(v2[i]);
+        }
+
+        std::vector<ColorWithLogOdds> avg_data(v3.size());
+        float others1 = l1.others - log(v3.size() - v1.size() + 1);
+        float others2 = l2.others - log(v3.size() - v2.size() + 1);
+
+        for(int i = 0; i < v3.size(); i++)
+        {
+            avg_data[i].color = v3[i];
+            float logOdds2;
+            bool assigned1 = false, assigned2 = false;
+            for(int j = 0; j < NUM_SEMANTICS; j++)
+            {
+                if(avg_data[i].color == l1.data[j].color)
+                {
+                    avg_data[i].logOdds = l1.data[j].logOdds;
+                    assigned1 = true;
+                }
+
+                if(avg_data[i].color == l2.data[j].color)
+                {
+                    logOdds2 = l2.data[j].logOdds;
+                    assigned2 = true;
+                }
+            }
+
+            if(!assigned1)
+                avg_data[i].logOdds = others1;
+
+            if(!assigned2)
+                logOdds2 = others2;
+
+            avg_data[i].logOdds = avg_data[i].logOdds + consensus_weight * logOdds2;
+        }
+        others1 = others1 + consensus_weight * others2;
+
+        std::sort(avg_data.begin(), avg_data.end()); // Ascending sort
+        SemanticsLogOdds output;
+        if(avg_data.size() <= NUM_SEMANTICS)
+        {
+            for(int i = 0; i < avg_data.size(); i++)
+            {
+                output.data[i].color = avg_data[avg_data.size() - 1 - i].color;
+                output.data[i].logOdds = clipLogOdds(avg_data[avg_data.size() - 1 - i].logOdds, maxLogOdds, minLogOdds);
+            }
+
+            output.others = clipLogOdds(others1, maxLogOdds, minLogOdds);
+        } else {
+            float exp_others = exp(others1);
+            for(int i = 0; i < avg_data.size(); i++)
+            {
+                if(i < NUM_SEMANTICS)
+                {
+                    output.data[i].color = avg_data[avg_data.size() - 1 - i].color;
+                    output.data[i].logOdds = clipLogOdds(avg_data[avg_data.size() - 1 - i].logOdds, maxLogOdds, minLogOdds);
+                } else {
+                    exp_others += exp(avg_data[avg_data.size() - 1 - i].logOdds);
+                }
+            }
+
+            output.others = clipLogOdds(log(exp_others), maxLogOdds, minLogOdds);
+        }
+
+        return output;
+    }
+
+    SemanticsLogOdds SemanticsLogOdds::semanticFusionInit(float value, const SemanticsLogOdds& node_semantics, float consensus_weight,
+                                                          float maxLogOdds, float minLogOdds, bool hostSemIsInit)
+    {
+        SemanticsLogOdds sem;
+        ColorOcTreeNode::Color white_color(255,255,255);
+        float non_whites = 0;
+        for (int i = 0; i < NUM_SEMANTICS; i++)
+        {
+            if (node_semantics.data[i].color != white_color)
+            {
+                sem.data[i].color = node_semantics.data[i].color;
+                non_whites += 1;
+            } else {break;}
+        }
+        float class_logOdds = value - log(non_whites + 1);
+        for (int i = 0; i < (int)non_whites; i++)
+            sem.data[i].logOdds = class_logOdds;
+        sem.others = class_logOdds;
+        
+        if (hostSemIsInit)
+            return semanticFusion(node_semantics, sem, consensus_weight, maxLogOdds, minLogOdds);
+        else
+            return semanticFusion(sem, node_semantics, consensus_weight, maxLogOdds, minLogOdds);
+    }
+
+    SemanticsLogOdds SemanticsLogOdds::fuseObs(const SemanticsLogOdds& l, const ColorOcTreeNode::Color& obs,
                              float phi, float psi, float maxLogOdds, float minLogOdds)
     {
         std::vector<ColorWithLogOdds> v;
@@ -190,7 +308,7 @@ namespace octomap
         return output;
     }
     
-    SemanticsLogOdds SemanticsLogOdds::fuseObsFree(const SemanticsLogOdds l, float phi, float minLogOdds)
+    SemanticsLogOdds SemanticsLogOdds::fuseObsFree(const SemanticsLogOdds& l, float phi, float minLogOdds)
     {
         SemanticsLogOdds output = l;
         
@@ -219,22 +337,5 @@ namespace octomap
         out << ')';
         return out;
     }
-
-    /*std::vector<float> softmax(const SemanticsBayesian l)
-    {
-        std::vector<float> prob_vec (1);
-        for(int i = 0; i < NUM_SEMANTICS; i++)
-        {
-            if(l.data[i].color != ColorOcTreeNode::Color(255,255,255))
-                prob_vec.push_back(exp(l.data[i].logOdds));
-        }
-        prob_vec.push_back(exp(l.others));
-        float denom = 0.;
-        for (auto& p : prob_vec)
-            denom += p;
-        for (auto& p : prob_vec)
-            p = p / denom;
-        return prob_vec;
-    }*/
 
 } //namespace octomap

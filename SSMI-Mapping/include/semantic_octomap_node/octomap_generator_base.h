@@ -56,6 +56,13 @@ public:
 
     /// Get whether use semantic color for serialization
     virtual bool isUseSemanticColor() = 0;
+    
+    /// Set whether write semantics for serialization
+    virtual void setWriteSemantics(bool write) = 0;
+
+    /// Get whether write semantics for serialization
+    virtual bool doesWriteSemantics() = 0;
+
 
     /// Get octree
     virtual OCTREE* getOctree() = 0;

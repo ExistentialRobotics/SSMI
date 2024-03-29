@@ -6,6 +6,6 @@
   <node pkg="semantic_octomap" type="semantic_sensor_node.py" name="semantic_cloud" output="screen"/>
 
   <rosparam file="$(find semantic_octomap)/params/octomap_generator.yaml" command="load"/>
-  <node pkg="semantic_octomap" type="semantic_octomap" name="semantic_octomap" output="screen"/>
+  <node pkg="semantic_octomap" type="semantic_octomap_node" name="semantic_octomap" output="screen"/>
 
 </launch>
