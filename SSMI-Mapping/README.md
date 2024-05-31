@@ -2,7 +2,7 @@
 Semantic 3-D OctoMap implementation for building probabilistic multi-class maps of an environment using semantic pointcloud input.
 
 ## Dependencies
-* ROS Melodic
+* ROS Melodic or Noetic
 * Catkin
 * PCL
 * OctoMap
