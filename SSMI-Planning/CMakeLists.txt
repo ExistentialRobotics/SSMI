@@ -1,14 +1,17 @@
 cmake_minimum_required(VERSION 2.8)
 project(semantic_info_gathering)
 
+set(CMAKE_BUILD_TYPE RELEASE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -O3 -Wall -fpic")
+
 set(PACKAGE_DEPENDENCIES
   roscpp
   rospy
   std_srvs
 )
-
+# Set your python version here if using python2, e.g. python2.7
 execute_process(
-        COMMAND "python2.7" -c "from distutils import sysconfig; print(sysconfig.get_python_inc())"
+        COMMAND "python" -c "from distutils import sysconfig; print(sysconfig.get_python_inc())"
         OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -34,9 +37,12 @@ set(SOURCE_FILES
         src/cpp/src/exploration/util.cpp
         )
 
+set(EXPLORATION_LIB_DESTINATION "${CATKIN_DEVEL_PREFIX}/lib/python3/dist-packages")
 add_library(exploration_cpp SHARED ${PROJECT_SOURCE_DIR} ${SOURCE_FILES} src/cpp/src/exploration/python.cpp)
 target_link_libraries(exploration_cpp ${PYTHON_LIBRARIES})
-set_target_properties(exploration_cpp PROPERTIES SUFFIX ".so" PREFIX "_")
+set_target_properties(exploration_cpp PROPERTIES SUFFIX ".so" PREFIX "_"
+                      LIBRARY_OUTPUT_DIRECTORY ${EXPLORATION_LIB_DESTINATION})
+
 
 install(DIRECTORY
   launch
@@ -56,6 +62,7 @@ install(DIRECTORY
   FILES_MATCHING PATTERN "*.rviz"
   )
 
+catkin_python_setup()
 catkin_install_python(PROGRAMS
   src/exploration/semantic_exploration_node.py
   src/navigation/path_navigation_node_position.py

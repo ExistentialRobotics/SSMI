@@ -10,7 +10,7 @@ planning:
   skip_pose: 1000
   skip_pixel: 50
   
-  robot_frame_id: 'husky/base'
+  robot_frame_id: 'base_link'
   
   interpolation:
     alpha: 1

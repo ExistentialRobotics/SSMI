@@ -4,9 +4,9 @@ from __future__ import print_function, absolute_import, division
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from collision_cpp import check_for_collision
-from costmap import Costmap
-from utils import rc_to_xy, get_rotation_matrix_2d, which_coords_in_bounds, compute_circumscribed_radius, clip_range, xy_to_rc
+from footprints.collision_cpp import check_for_collision
+from mapping.costmap import Costmap
+from utilities.utils import rc_to_xy, get_rotation_matrix_2d, which_coords_in_bounds, compute_circumscribed_radius, clip_range, xy_to_rc
 
 
 class CustomFootprint:
@@ -78,18 +78,18 @@ class CustomFootprint:
         :param debug bool: show debug plots?
         """
         # compute needed array size of the footprint mask
-        first_hull_px = np.ceil(self._rotated_masks[0] / resolution).astype(np.int)[:, ::-1]
+        first_hull_px = np.ceil(self._rotated_masks[0] / resolution).astype(int)[:, ::-1]
 
         # add +1 to give a pixel footprint a minimum radius > 0
-        mask_radius = np.ceil(compute_circumscribed_radius(first_hull_px)).astype(np.int) + 1
+        mask_radius = np.ceil(compute_circumscribed_radius(first_hull_px)).astype(int) + 1
         mask_shape = np.array([2 * mask_radius + 1, 2 * mask_radius + 1])
-        ego_coord = np.floor(mask_shape / 2.).astype(np.int)
+        ego_coord = np.floor(mask_shape / 2.).astype(int)
 
         # loop through all the rotated hulls, and rasterize them onto the mask
         rotated_footprint_masks = []
         rotated_outline_coords = []
         for i, rotated_hull in enumerate(self._rotated_masks):
-            rotated_hull_px = np.ceil(rotated_hull / resolution).astype(np.int)[:, ::-1] + ego_coord
+            rotated_hull_px = np.ceil(rotated_hull / resolution).astype(int)[:, ::-1] + ego_coord
             footprint_mask = -1 * np.ones(mask_shape)
             cv2.drawContours(footprint_mask, [rotated_hull_px[:, ::-1]], contourIdx=0,
                              color=Costmap.OCCUPIED, thickness=-1)
@@ -122,7 +122,7 @@ class CustomFootprint:
 
         # convert state to pixel coordinates
         state_px = xy_to_rc(pose=state, occupancy_map=occupancy_map)
-        position = np.array(state_px[:2]).astype(np.int)
+        position = np.array(state_px[:2]).astype(int)
 
         if debug:
             map_vis = occupancy_map.copy()
@@ -151,7 +151,7 @@ class CustomFootprint:
                                                obstacle_values=obstacle_values)
         else:
             # part of robot off the edge of map, it is a collision, because we assume map is bounded
-            if not np.all(which_coords_in_bounds(coords=(outline_coords + state_px[:2]).astype(np.int),
+            if not np.all(which_coords_in_bounds(coords=(outline_coords + state_px[:2]).astype(int),
                                                  map_shape=occupancy_map.get_shape())):
                 return True
 
@@ -201,7 +201,7 @@ class CustomFootprint:
         closest_angle_ind = int(np.argmin(np.abs(state_px[2] - self._mask_angles)))
 
         rotated_hull_px = self._rotated_outline_coords_set[visualization_map.resolution][closest_angle_ind] / self._inflation_scale
-        rotated_hull_px = (rotated_hull_px + state_px[:2]).astype(np.int)
+        rotated_hull_px = (rotated_hull_px + state_px[:2]).astype(int)
         cv2.drawContours(visualization_map.data, [rotated_hull_px[:, ::-1]], contourIdx=0, color=color, thickness=-1)
 
     def draw_circumscribed(self, state, visualization_map):
@@ -216,7 +216,7 @@ class CustomFootprint:
 
         mask_radius = self._mask_radius_set[visualization_map.resolution] + 1
 
-        state_px = xy_to_rc(state, visualization_map).astype(np.int)
+        state_px = xy_to_rc(state, visualization_map).astype(int)
 
         cv2.circle(visualization_map.data, center=tuple(state_px[:2][::-1]), radius=mask_radius,
                    color=Costmap.FREE, thickness=-1)
@@ -233,7 +233,7 @@ class CustomFootprint:
 
         mask_radius = self._mask_radius_set[resolution]
         mask_shape = np.array([2 * mask_radius + 1, 2 * mask_radius + 1])
-        ego_center = np.floor(mask_shape / 2.).astype(np.int)
+        ego_center = np.floor(mask_shape / 2.).astype(int)
         closest_angle_ind = int(np.argmin(np.abs(angle - self._mask_angles)))
         ego_coords = np.argwhere(self._rotated_masks_set[resolution][closest_angle_ind] == Costmap.OCCUPIED)\
             - ego_center
@@ -263,7 +263,7 @@ class CustomFootprint:
 
         mask_radius = self._mask_radius_set[resolution] + 1
         mask_shape = np.array([2 * mask_radius + 1, 2 * mask_radius + 1])
-        ego_coord = np.floor(mask_shape / 2.).astype(np.int)
+        ego_coord = np.floor(mask_shape / 2.).astype(int)
         mask = np.zeros(mask_shape)
         cv2.circle(mask, center=tuple(ego_coord[::-1]), radius=mask_radius, color=1, thickness=-1)
         return resolution * (np.argwhere(mask == 1) - ego_coord)

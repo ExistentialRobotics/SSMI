@@ -47,7 +47,7 @@ def xy_to_rc(pose, occupancy_map):
     :param occupancy_map Costmap: current map
     :return Union[array(2)[float], array(3)[float], array(N,2)[float], array(N,3)[float]]: [r, c, theta pose]
     """
-    new_pose = np.array(pose, dtype=np.float)
+    new_pose = np.array(pose, dtype=float)
     if len(new_pose.shape) == 1:
         new_pose[:2] -= occupancy_map.origin
         new_pose[1] = (occupancy_map.get_size()[1] - occupancy_map.resolution) - new_pose[1]
@@ -68,7 +68,7 @@ def rc_to_xy(pose, occupancy_map):
     :param occupancy_map Costmap: current map
     :return Union[array(2)[float], array(3)[float], array(N,2)[float], array(N,3)[float]]: x, y pose
     """
-    new_pose = np.array(pose, dtype=np.float)
+    new_pose = np.array(pose, dtype=float)
     if len(new_pose.shape) == 1:
         new_pose[0] = (occupancy_map.get_shape()[0] - 1) - new_pose[0]
         new_pose[[0, 1]] = new_pose[[1, 0]]
@@ -91,8 +91,8 @@ def which_coords_in_bounds(coords, map_shape):
     :return Union[bool array(N)[bool]]: corresponding to whether the coord is in bounds (if array is given, then it will be
              array of bool)
     """
-    assert isinstance(coords, np.ndarray) and coords.dtype == np.int
-    assert np.array(map_shape).dtype == np.int
+    assert isinstance(coords, np.ndarray) and coords.dtype == int
+    assert np.array(map_shape).dtype == int
     if len(coords.shape) == 1:
         return coords[0] >= 0 and coords[0] < map_shape[0] and coords[1] >= 0 and coords[1] < map_shape[1]
     else:

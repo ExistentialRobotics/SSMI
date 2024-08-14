@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, division
 
 import numpy as np
 
-from utils import xy_to_rc, rc_to_xy
+from utilities.utils import xy_to_rc, rc_to_xy
 from _exploration_cpp import c_astar, c_oriented_astar, c_get_astar_angles
 
 
@@ -89,7 +89,7 @@ def oriented_astar(goal, start, occupancy_map, footprint_masks,
 
     c_occupancy_map = occupancy_map.data.astype(np.uint8)
 
-    c_footprint_masks = np.logical_not(np.array(footprint_masks, dtype=np.bool))
+    c_footprint_masks = np.logical_not(np.array(footprint_masks, dtype=bool))
     c_footprint_masks = [c_footprint_mask for c_footprint_mask in c_footprint_masks]
 
     c_outline_coords = np.array(outline_coords, dtype=np.int32)

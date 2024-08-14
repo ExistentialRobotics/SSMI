@@ -36,7 +36,7 @@ class PathNavigation:
         self.position_cmd_pub = rospy.Publisher("/planner/position_cmd", PoseStamped, queue_size = 1)
         
         self.world_frame_id = 'world'
-        self.robot_frame_id = '/husky/base'
+        self.robot_frame_id = 'base_link'
         self.tf_listener = tf.TransformListener()
 
     def get_pose_from_tf(self, from_frame_id):

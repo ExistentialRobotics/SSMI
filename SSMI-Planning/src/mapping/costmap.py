@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import, division
 import cv2
 import numpy as np
 
-from utils import which_coords_in_bounds
+from utilities.utils import which_coords_in_bounds
 
 
 class Costmap:
@@ -75,12 +75,12 @@ class Costmap:
         """
         assert self.resolution <= desired_resolution
         scale_factor = self.resolution / desired_resolution
-        scaled_shape = np.rint(np.array(self.data.shape) * scale_factor).astype(np.int)
+        scaled_shape = np.rint(np.array(self.data.shape) * scale_factor).astype(int)
         scaled_data = np.zeros(scaled_shape)
 
-        scaled_occupied_coords = np.rint(np.argwhere(self.data == Costmap.OCCUPIED) * scale_factor).astype(np.int)
-        scaled_unexplored_coords = np.rint(np.argwhere(self.data == Costmap.UNEXPLORED) * scale_factor).astype(np.int)
-        scaled_free_coords = np.rint(np.argwhere(self.data == Costmap.FREE) * scale_factor).astype(np.int)
+        scaled_occupied_coords = np.rint(np.argwhere(self.data == Costmap.OCCUPIED) * scale_factor).astype(int)
+        scaled_unexplored_coords = np.rint(np.argwhere(self.data == Costmap.UNEXPLORED) * scale_factor).astype(int)
+        scaled_free_coords = np.rint(np.argwhere(self.data == Costmap.FREE) * scale_factor).astype(int)
 
         scaled_occupied_coords = scaled_occupied_coords[which_coords_in_bounds(scaled_occupied_coords,
                                                                                scaled_shape)]

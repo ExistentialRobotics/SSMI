@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, division
 
 import numpy as np
 
-from utils import xy_to_rc
+from utilities.utils import xy_to_rc
 from _exploration_cpp import c_check_for_collision
 
 
@@ -24,7 +24,7 @@ def check_for_collision(state, occupancy_map, footprint_mask, outline_coords, ob
     state_px = xy_to_rc(state, occupancy_map)
     c_state = np.array(state_px[:2], dtype=np.int32)
     c_occupancy_map = occupancy_map.data.astype(np.uint8)
-    c_footprint_mask = np.logical_not(np.array(footprint_mask, dtype=np.bool))
+    c_footprint_mask = np.logical_not(np.array(footprint_mask, dtype=bool))
     c_outline_coords = np.array(outline_coords, dtype=np.int32)
     c_obstacle_values = np.array(obstacle_values, dtype=np.uint8)
 

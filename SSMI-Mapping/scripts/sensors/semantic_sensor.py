@@ -3,6 +3,7 @@ from __future__ import print_function
 import numpy as np
 from sensor_msgs.msg import PointCloud2, PointField
 from enum import Enum
+import rospy
 
 
 class PointType(Enum):
@@ -10,14 +11,16 @@ class PointType(Enum):
 
 
 class SemanticPclGenerator:
-    def __init__(self, intrinsic, width = 80, height = 60, frame_id = "/camera",
+    def __init__(self, intrinsic, width = 80, height = 60,unit_conversion = 1, frame_id = "/camera",
                  point_type = PointType.SEMANTIC):
         '''
         width: (int) width of input images
         height: (int) height of input images
+        unit_conversion: (float) unit conversion factor 1 for m and 1e3 for mm
         '''
         self.point_type = point_type
         self.intrinsic = intrinsic
+        self.unit_conversion = unit_conversion # Unit conversion factor 1 for m and 1e3 for mm
         # Allocate arrays
         x_index = np.array([list(range(width))*height], dtype = '<f4')
         y_index = np.array([[i]*width for i in range(height)], dtype = '<f4').ravel()
@@ -70,8 +73,8 @@ class SemanticPclGenerator:
         bgr_img = bgr_img.view('<u1')
         depth_img = depth_img.view('<f4')
         # Add depth information
-        self.xyd_vect[:,0:2] = self.xy_index * depth_img.reshape(-1,1) / 1000 # Division by 1000 for unit conversion
-        self.xyd_vect[:,2:3] = depth_img.reshape(-1,1) / 1000 # Division by 1000 for unit conversion
+        self.xyd_vect[:,0:2] = self.xy_index * depth_img.reshape(-1,1) / self.unit_conversion
+        self.xyd_vect[:,2:3] = depth_img.reshape(-1,1) / self.unit_conversion # Convert to meters
         self.XYZ_vect = self.xyd_vect.dot(self.intrinsic.I.T)
         # Convert to ROS point cloud message in a vectorialized manner
         # ros msg data: [x,y,z,0,bgr0,semantic_color] (little endian float32)

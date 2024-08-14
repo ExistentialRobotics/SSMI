@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import division
 from __future__ import print_function
 
@@ -18,11 +18,11 @@ from nav_msgs.msg import Path
 from std_msgs.msg import Bool
 from geometry_msgs.msg import Point, PoseStamped
 
-from costmap import Costmap
-from utils import rc_to_xy, wrap_angles, xy_to_rc, bresenham2d
-from footprint_points import get_tricky_circular_footprint, get_tricky_oval_footprint
-from footprints import CustomFootprint
-from astar_cpp import oriented_astar, get_astar_angles
+from mapping.costmap import Costmap
+from utilities.utils import rc_to_xy, wrap_angles, xy_to_rc, bresenham2d
+from footprints.footprint_points import get_tricky_circular_footprint, get_tricky_oval_footprint
+from footprints.footprints import CustomFootprint
+from planners.astar_cpp import oriented_astar, get_astar_angles
 
 from semantic_octomap.srv import *
 

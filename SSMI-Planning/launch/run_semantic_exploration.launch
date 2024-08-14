@@ -2,7 +2,7 @@
 <launch>
     
     <!-- rviz args -->
-    <arg name="rviz" default="true"/>
+    <arg name="rviz" default="false"/>
     
     <rosparam file="$(find semantic_info_gathering)/params/exploration_params.yaml" command="load"/>
     <node name="semantic_exploration" pkg="semantic_info_gathering" type="semantic_exploration_node.py" output="screen"/>

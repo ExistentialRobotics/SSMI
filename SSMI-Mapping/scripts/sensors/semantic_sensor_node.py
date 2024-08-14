@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import division
 from __future__ import print_function
 
@@ -13,7 +13,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from skimage.transform import resize
 from sensor_msgs.msg import PointCloud2
-from semantic_sensor import PointType, SemanticPclGenerator
+from sensors.semantic_sensor import PointType, SemanticPclGenerator
 
 
 class SemanticCloud:
@@ -32,6 +32,8 @@ class SemanticCloud:
         else:
             print("Invalid point type.")
             return
+        # Get Unit conversion factor
+        unit_conversion = rospy.get_param(robot_name + '/semantic_pcl/unit_conversion')
         # Get image size
         self.img_width, self.img_height = rospy.get_param(robot_name + '/camera/width'), rospy.get_param(robot_name + '/camera/height')
         # Set up ROS
@@ -61,7 +63,7 @@ class SemanticCloud:
         self.ts = message_filters.ApproximateTimeSynchronizer([self.color_sub, self.semantic_sub, self.depth_sub],
                                                               queue_size = 1, slop = 0.3)
         self.ts.registerCallback(self.color_semantic_depth_callback)
-        self.cloud_generator = SemanticPclGenerator(intrinsic, self.img_width,self.img_height, frame_id,
+        self.cloud_generator = SemanticPclGenerator(intrinsic, self.img_width,self.img_height, unit_conversion, frame_id,
                                                     self.point_type)
         print('Semantic point cloud ready!')
 

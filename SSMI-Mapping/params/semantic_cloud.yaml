@@ -1,18 +1,20 @@
 # Camera intrinsic matrix parameters
 camera:
-  fx: 195.74853990717293
-  fy: 195.74853990717293
-  cx: 240.0
-  cy: 180.0
+  fx: 320
+  fy: 320
+  cx: 320
+  cy: 240
 
-  width: 480
-  height: 360
+  width: 640
+  height: 480
 
 semantic_pcl:
-  color_image_topic: "/camera/image"
-  semantic_image_topic: "/camera/semantic_image"
-  depth_image_topic: "/camera/depth"
+  color_image_topic: "/rgbd_camera/image"
+  semantic_image_topic: "/semantic/colored_map"
+  depth_image_topic: "/rgbd_camera/depth_image"
   point_type: 0
-  frame_id: "/camera"
+  frame_id: "camera_optic"
   depth_noise_std: 0.0
   true_class_prob: 1.0
+  # set unit_conversion to 1000 if the depth image is in mm
+  unit_conversion: 1.0
