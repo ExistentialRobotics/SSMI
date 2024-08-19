@@ -64,14 +64,14 @@ install(DIRECTORY
 
 catkin_python_setup()
 catkin_install_python(PROGRAMS
-  src/exploration/semantic_exploration_node.py
-  src/navigation/path_navigation_node_position.py
-  src/footprints/collision_cpp.py
-  src/footprints/footprint_points.py
-  src/footprints/footprints.py
-  src/mapping/costmap.py
-  src/planners/astar_cpp.py
-  src/utilities/utils.py
+  src/ssmi_exploration/semantic_exploration_node.py
+  src/ssmi_navigation/path_navigation_node_position.py
+  src/ssmi_footprints/collision_cpp.py
+  src/ssmi_footprints/footprint_points.py
+  src/ssmi_footprints/footprints.py
+  src/ssmi_mapping/costmap.py
+  src/ssmi_planners/astar_cpp.py
+  src/ssmi_utilities/utils.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(TARGETS exploration_cpp

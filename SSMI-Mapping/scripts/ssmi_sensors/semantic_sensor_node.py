@@ -13,7 +13,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from skimage.transform import resize
 from sensor_msgs.msg import PointCloud2
-from sensors.semantic_sensor import PointType, SemanticPclGenerator
+from ssmi_sensors.semantic_sensor import PointType, SemanticPclGenerator
 
 
 class SemanticCloud:

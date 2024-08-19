@@ -18,11 +18,11 @@ from nav_msgs.msg import Path
 from std_msgs.msg import Bool
 from geometry_msgs.msg import Point, PoseStamped
 
-from mapping.costmap import Costmap
-from utilities.utils import rc_to_xy, wrap_angles, xy_to_rc, bresenham2d
-from footprints.footprint_points import get_tricky_circular_footprint, get_tricky_oval_footprint
-from footprints.footprints import CustomFootprint
-from planners.astar_cpp import oriented_astar, get_astar_angles
+from ssmi_mapping.costmap import Costmap
+from ssmi_utilities.utils import rc_to_xy, wrap_angles, xy_to_rc, bresenham2d
+from ssmi_footprints.footprint_points import get_tricky_circular_footprint, get_tricky_oval_footprint
+from ssmi_footprints.footprints import CustomFootprint
+from ssmi_planners.astar_cpp import oriented_astar, get_astar_angles
 
 from semantic_octomap.srv import *
 

@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, division
 
 import numpy as np
 
-from utilities.utils import xy_to_rc, rc_to_xy
+from ssmi_utilities.utils import xy_to_rc, rc_to_xy
 from _exploration_cpp import c_astar, c_oriented_astar, c_get_astar_angles
 
 

@@ -92,8 +92,8 @@ install(DIRECTORY
   )
 
 catkin_install_python(PROGRAMS
-  scripts/sensors/semantic_sensor_node.py
-  scripts/sensors/semantic_sensor.py
+  scripts/ssmi_sensors/semantic_sensor_node.py
+  scripts/ssmi_sensors/semantic_sensor.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(TARGETS semantic_octomap_node semantic_octomap

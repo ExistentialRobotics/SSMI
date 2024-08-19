@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, division
 
 import numpy as np
 
-from utilities.utils import xy_to_rc
+from ssmi_utilities.utils import xy_to_rc
 from _exploration_cpp import c_check_for_collision
 
 

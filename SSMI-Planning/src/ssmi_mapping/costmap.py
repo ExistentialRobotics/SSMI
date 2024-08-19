@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import, division
 import cv2
 import numpy as np
 
-from utilities.utils import which_coords_in_bounds
+from ssmi_utilities.utils import which_coords_in_bounds
 
 
 class Costmap:

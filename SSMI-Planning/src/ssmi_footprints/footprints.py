@@ -4,9 +4,9 @@ from __future__ import print_function, absolute_import, division
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from footprints.collision_cpp import check_for_collision
-from mapping.costmap import Costmap
-from utilities.utils import rc_to_xy, get_rotation_matrix_2d, which_coords_in_bounds, compute_circumscribed_radius, clip_range, xy_to_rc
+from ssmi_footprints.collision_cpp import check_for_collision
+from ssmi_mapping.costmap import Costmap
+from ssmi_utilities.utils import rc_to_xy, get_rotation_matrix_2d, which_coords_in_bounds, compute_circumscribed_radius, clip_range, xy_to_rc
 
 
 class CustomFootprint:
