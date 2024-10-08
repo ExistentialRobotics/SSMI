@@ -26,8 +26,9 @@ SSMI is implemented as two ROS packages, which can be built on x86-64 and ARM-ba
 </p>
 
 
-## Demo
-To see a demo of the project, please visit our [Demo Repository](https://github.com/ExistentialRobotics/SSMI-example).
+## Gazebo Demonstration
+
+Please check [https://github.com/ExistentialRobotics/SSMI-Example](https://github.com/ExistentialRobotics/SSMI-example) for a Gazebo demo of SSMI.
 
 ## Citation
 
