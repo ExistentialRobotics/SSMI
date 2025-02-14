@@ -8,6 +8,9 @@
 #define logBETA static_cast<float>(log(0.1))
 #define log_minus_BETA static_cast<float>(log(0.9))
 
+#define occupancyOnlyRatio static_cast<float>(0.75);
+#define occupancyLogOdds static_cast<float>(0.1);
+
 namespace octomap
 {
     // Struct ColorWithLogOdds implementation -------------------------------------
@@ -252,6 +255,39 @@ namespace octomap
         std::vector<ColorWithLogOdds> v;
         float others = l.others;
         bool isOthers = true;
+        // check for occupancy only measurement (145,145,145)
+        if(obs == ColorOcTreeNode::Color(145,145,145))
+        {
+            
+            //increment log odds of others and current occupancy
+            others += psi * occupancyOnlyRatio;
+            if(others > maxLogOdds * occupancyOnlyRatio)
+                others = maxLogOdds * occupancyOnlyRatio;
+
+            for(int i = 0; i < NUM_SEMANTICS; i++)
+            {   
+                if(l.data[i].color == ColorOcTreeNode::Color(255,255,255)) //uninitialized class
+                    continue;
+
+                if(l.data[i].color == ColorOcTreeNode::Color(145,145,145)) //dont add occupancy to "occupied-unknown_label" class
+                    v.push_back(l.data[i]);
+                    continue;
+                
+                v.push_back(l.data[i]);
+                v.back().logOdds += psi * occupancyOnlyRatio;    
+                if(v.back().logOdds > maxLogOdds * occupancyOnlyRatio)
+                    v.back().logOdds = maxLogOdds * occupancyOnlyRatio;
+            }
+
+            std::sort(v.begin(), v.end());
+            SemanticsLogOdds output;
+            output.others = others;
+            for(int i = 0; i < v.size(); i++)
+                output.data[i] = v[v.size() - 1 - i];
+
+            return output;
+        }
+
         for(int i = 0; i < NUM_SEMANTICS; i++)
         {
             if(l.data[i].color != ColorOcTreeNode::Color(255,255,255))

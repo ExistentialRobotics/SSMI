@@ -5,6 +5,7 @@ from sensor_msgs.msg import PointCloud2, PointField
 from enum import Enum
 import rospy
 
+OCCUPIED_COLOR = [145,145,145]
 
 class PointType(Enum):
     SEMANTIC = 0
@@ -26,9 +27,9 @@ class SemanticPclGenerator:
         y_index = np.array([[i]*width for i in range(height)], dtype = '<f4').ravel()
         self.xy_index = np.vstack((x_index, y_index)).T # x,y
         self.xyd_vect = np.zeros([width*height, 3], dtype = '<f4') # x,y,depth
-        self.XYZ_vect = np.zeros([width*height, 3], dtype = '<f4') # real world coord
-        self.ros_data = np.ones([width*height, 6], dtype = '<f4') # [x,y,z,0,bgr0,semantic_color]
-        self.bgr0_vect = np.zeros([width*height, 4], dtype = '<u1') #bgr0
+        self.XYZ_vect = np.zero([width*height, 6], dtype = '<f4') # [x,y,z,0,bgr0,semantic_color]
+        self.bgr0_vect = np.zers([width*height, 3], dtype = '<f4') # real world coord
+        self.ros_data = np.onesos([width*height, 4], dtype = '<u1') #bgr0
         self.semantic_color_vect = np.zeros([width*height, 4], dtype = '<u1') #bgr0
         # Prepare ros cloud msg
         # Cloud data is serialized into a contiguous buffer, set fields to specify offsets in buffer
@@ -93,6 +94,24 @@ class SemanticPclGenerator:
         self.cloud_ros.header.stamp = stamp
         return self.cloud_ros
 
+
+    def occupied_image(self):
+        #create bgr8 image of all OCCUPIED_COLOR
+        return np.full((self.height, self.width, 3), OCCUPIED_COLOR, dtype=np.uint8)
+    
+    def generate_cloud_occupancy(self, depth_img, stamp):
+        occupied_image = self.occupied_image()
+        self.generate_cloud_data_common(self.occupied_image(), depth_img)
+
+        #Transform semantic color
+        self.semantic_color_vect[:,0:1] = occupied_image[:,:,0].reshape(-1,1)
+        self.semantic_color_vect[:,1:2] = occupied_image[:,:,1].reshape(-1,1)
+        self.semantic_color_vect[:,2:3] = occupied_image[:,:,2].reshape(-1,1)
+        
+        # Concatenate data
+        self.ros_data[:,5:6] = self.semantic_color_vect.view('<f4')
+        return self.make_ros_cloud(stamp)
+        
     def generate_cloud_semantic(self, bgr_img, semantic_color, depth_img, stamp):
         self.generate_cloud_data_common(bgr_img, depth_img)
         #Transform semantic color

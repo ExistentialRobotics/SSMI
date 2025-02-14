@@ -67,6 +67,27 @@ class SemanticCloud:
                                                     self.point_type)
         print('Semantic point cloud ready!')
 
+    def occupancy_depth_callback(self, depth_img_ros):
+        try:
+            depth_img = self.bridge.imgmsg_to_cv2(depth_img_ros, "32FC1")
+        except CvBridgeError as e:
+            print(e)
+
+        # Resize depth
+        if depth_img.shape[0] is not self.img_height or depth_img.shape[1] is not self.img_width:
+            depth_img = resize(depth_img, (self.img_height, self.img_width), order = 0, mode = 'reflect',
+                               anti_aliasing=False, preserve_range = True) # order = 0, nearest neighbour
+            depth_img = depth_img.astype(np.float32)
+
+        if self.point_type == PointType.SEMANTIC: 
+            cloud_ros = self.cloud_generator.generate_cloud_occupancy(depth_img, depth_img_ros.header.stamp)
+        else:
+            print('Point type not supported!')
+
+        # Publish point cloud
+        self.pcl_pub.publish(cloud_ros) 
+
+    
     def color_semantic_depth_callback(self, color_img_ros, semantic_img_ros , depth_img_ros):
         """
         Callback function to produce point cloud registered with semantic class color based
