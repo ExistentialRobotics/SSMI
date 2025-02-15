@@ -122,16 +122,6 @@ namespace octomap
         /// Perform semantic fusion between a semantic log-odds and a free observation
         static SemanticsLogOdds fuseObsFree(const SemanticsLogOdds& l, float phi, float minLogOdds);
         
-        /// Obtain occupancy from semantic log-odds
-        static inline float getOccFromSem(const SemanticsLogOdds& l) {
-            float occOdds = (float) exp(l.others);
-            for(int i = 0; i < 3; i++)
-            {
-                if(l.data[i].color != ColorOcTreeNode::Color(255,255,255))
-                    occOdds += (float) exp(l.data[i].logOdds);
-            }
-            return clipLogOdds(log(occOdds));
-        }
         
         static inline float clipLogOdds(float l, float maxLogOdds, float minLogOdds){
             if (l > maxLogOdds)
@@ -141,6 +131,16 @@ namespace octomap
                 return minLogOdds;
             
             return l;
+        }
+        /// Obtain occupancy from semantic log-odds
+        static inline float getOccFromSem(const SemanticsLogOdds& l) {
+            float occOdds = (float) exp(l.others);
+            for(int i = 0; i < 3; i++)
+            {
+                if(l.data[i].color != ColorOcTreeNode::Color(255,255,255))
+                    occOdds += (float) exp(l.data[i].logOdds);
+            }
+            return clipLogOdds(log(occOdds));
         }
     };
 
