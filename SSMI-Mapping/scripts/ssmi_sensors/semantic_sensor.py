@@ -3,33 +3,31 @@ from __future__ import print_function
 import numpy as np
 from sensor_msgs.msg import PointCloud2, PointField
 from enum import Enum
-import rospy
 
-OCCUPIED_COLOR = [145,145,145]
+
+OCCUPIED_COLOR = np.array([145, 145, 145])
 
 class PointType(Enum):
     SEMANTIC = 0
 
 
 class SemanticPclGenerator:
-    def __init__(self, intrinsic, width = 80, height = 60,unit_conversion = 1, frame_id = "/camera",
+    def __init__(self, intrinsic, width = 80, height = 60, frame_id = "/camera",
                  point_type = PointType.SEMANTIC):
         '''
         width: (int) width of input images
         height: (int) height of input images
-        unit_conversion: (float) unit conversion factor 1 for m and 1e3 for mm
         '''
         self.point_type = point_type
         self.intrinsic = intrinsic
-        self.unit_conversion = unit_conversion # Unit conversion factor 1 for m and 1e3 for mm
         # Allocate arrays
         x_index = np.array([list(range(width))*height], dtype = '<f4')
         y_index = np.array([[i]*width for i in range(height)], dtype = '<f4').ravel()
         self.xy_index = np.vstack((x_index, y_index)).T # x,y
         self.xyd_vect = np.zeros([width*height, 3], dtype = '<f4') # x,y,depth
-        self.XYZ_vect = np.zero([width*height, 6], dtype = '<f4') # [x,y,z,0,bgr0,semantic_color]
-        self.bgr0_vect = np.zers([width*height, 3], dtype = '<f4') # real world coord
-        self.ros_data = np.onesos([width*height, 4], dtype = '<u1') #bgr0
+        self.XYZ_vect = np.zeros([width*height, 3], dtype = '<f4') # real world coord
+        self.ros_data = np.ones([width*height, 6], dtype = '<f4') # [x,y,z,0,bgr0,semantic_color]
+        self.bgr0_vect = np.zeros([width*height, 4], dtype = '<u1') #bgr0
         self.semantic_color_vect = np.zeros([width*height, 4], dtype = '<u1') #bgr0
         # Prepare ros cloud msg
         # Cloud data is serialized into a contiguous buffer, set fields to specify offsets in buffer
@@ -61,6 +59,8 @@ class SemanticPclGenerator:
         self.cloud_ros.point_step = 6 * 4 # In bytes
         self.cloud_ros.row_step = self.cloud_ros.point_step * self.cloud_ros.width * self.cloud_ros.height
         self.cloud_ros.is_dense = False
+        self.height = height
+        self.width = width
 
     def generate_cloud_data_common(self, bgr_img, depth_img):
         """
@@ -74,9 +74,14 @@ class SemanticPclGenerator:
         bgr_img = bgr_img.view('<u1')
         depth_img = depth_img.view('<f4')
         # Add depth information
-        self.xyd_vect[:,0:2] = self.xy_index * depth_img.reshape(-1,1) / self.unit_conversion
-        self.xyd_vect[:,2:3] = depth_img.reshape(-1,1) / self.unit_conversion # Convert to meters
+        o_R_r = np.matrix([[0, -1, 0],
+                   [0, 0, -1],
+                   [1, 0, 0]])
+        self.xyd_vect[:,0:2] = self.xy_index * depth_img.reshape(-1,1) / 1000 # Division by 1000 for unit conversion
+        self.xyd_vect[:,2:3] = depth_img.reshape(-1,1) / 1000 # Division by 1000 for unit conversion
         self.XYZ_vect = self.xyd_vect.dot(self.intrinsic.I.T)
+        self.XYZ_vect = self.XYZ_vect.dot(o_R_r.I.T)
+        
         # Convert to ROS point cloud message in a vectorialized manner
         # ros msg data: [x,y,z,0,bgr0,semantic_color] (little endian float32)
         # Transform color
@@ -94,30 +99,31 @@ class SemanticPclGenerator:
         self.cloud_ros.header.stamp = stamp
         return self.cloud_ros
 
-
-    def occupied_image(self):
-        #create bgr8 image of all OCCUPIED_COLOR
-        return np.full((self.height, self.width, 3), OCCUPIED_COLOR, dtype=np.uint8)
-    
-    def generate_cloud_occupancy(self, depth_img, stamp):
-        occupied_image = self.occupied_image()
-        self.generate_cloud_data_common(self.occupied_image(), depth_img)
-
-        #Transform semantic color
-        self.semantic_color_vect[:,0:1] = occupied_image[:,:,0].reshape(-1,1)
-        self.semantic_color_vect[:,1:2] = occupied_image[:,:,1].reshape(-1,1)
-        self.semantic_color_vect[:,2:3] = occupied_image[:,:,2].reshape(-1,1)
-        
-        # Concatenate data
-        self.ros_data[:,5:6] = self.semantic_color_vect.view('<f4')
-        return self.make_ros_cloud(stamp)
-        
     def generate_cloud_semantic(self, bgr_img, semantic_color, depth_img, stamp):
         self.generate_cloud_data_common(bgr_img, depth_img)
         #Transform semantic color
         self.semantic_color_vect[:,0:1] = semantic_color[:,:,0].reshape(-1,1)
         self.semantic_color_vect[:,1:2] = semantic_color[:,:,1].reshape(-1,1)
         self.semantic_color_vect[:,2:3] = semantic_color[:,:,2].reshape(-1,1)
+        # Concatenate data
+        self.ros_data[:,5:6] = self.semantic_color_vect.view('<f4')
+        return self.make_ros_cloud(stamp)
+
+    def occupied_image(self):
+        #create bgr8 image of all OCCUPIED_COLOR
+        return np.full((self.height, self.width, 3), OCCUPIED_COLOR, dtype=np.uint8)
+
+    def generate_cloud_occupancy(self, depth_img, stamp):
+        occupied_image = self.occupied_image()
+        occ_img = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+        occ_img[:] = OCCUPIED_COLOR
+        self.generate_cloud_data_common(occ_img.astype(np.uint8), depth_img)
+
+        #Transform semantic color
+        self.semantic_color_vect[:,0:1] = occupied_image[:,:,0].reshape(-1,1)
+        self.semantic_color_vect[:,1:2] = occupied_image[:,:,1].reshape(-1,1)
+        self.semantic_color_vect[:,2:3] = occupied_image[:,:,2].reshape(-1,1)
+        
         # Concatenate data
         self.ros_data[:,5:6] = self.semantic_color_vect.view('<f4')
         return self.make_ros_cloud(stamp)

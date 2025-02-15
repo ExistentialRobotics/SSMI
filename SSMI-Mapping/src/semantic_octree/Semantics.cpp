@@ -8,9 +8,6 @@
 #define logBETA static_cast<float>(log(0.1))
 #define log_minus_BETA static_cast<float>(log(0.9))
 
-#define occupancyOnlyRatio static_cast<float>(0.75);
-#define occupancyLogOdds static_cast<float>(0.1);
-
 namespace octomap
 {
     // Struct ColorWithLogOdds implementation -------------------------------------
@@ -258,34 +255,45 @@ namespace octomap
         // check for occupancy only measurement (145,145,145)
         if(obs == ColorOcTreeNode::Color(145,145,145))
         {
-            
-            //increment log odds of others and current occupancy
-            others += psi * occupancyOnlyRatio;
-            if(others > maxLogOdds * occupancyOnlyRatio)
-                others = maxLogOdds * occupancyOnlyRatio;
+            try{
+                //increment log odds of others and current occupancy
+                others += psi * 0.75;
+                if(others > (maxLogOdds * 0.75)){
+                    others = maxLogOdds * 0.75;
+                }
 
-            for(int i = 0; i < NUM_SEMANTICS; i++)
-            {   
-                if(l.data[i].color == ColorOcTreeNode::Color(255,255,255)) //uninitialized class
-                    continue;
+                for(int i = 0; i < NUM_SEMANTICS; i++)
+                {   
+                    if(l.data[i].color == ColorOcTreeNode::Color(255,255,255)) //uninitialized class
+                        continue;
 
-                if(l.data[i].color == ColorOcTreeNode::Color(145,145,145)) //dont add occupancy to "occupied-unknown_label" class
+                    if(l.data[i].color == ColorOcTreeNode::Color(145,145,145)) //dont add occupancy to "occupied-unknown_label" class
+                        v.push_back(l.data[i]);
+                        continue;
+                    
                     v.push_back(l.data[i]);
-                    continue;
-                
-                v.push_back(l.data[i]);
-                v.back().logOdds += psi * occupancyOnlyRatio;    
-                if(v.back().logOdds > maxLogOdds * occupancyOnlyRatio)
-                    v.back().logOdds = maxLogOdds * occupancyOnlyRatio;
+                    v.back().logOdds += psi * 0.75;    
+                    if(v.back().logOdds > maxLogOdds * 0.75){
+                        v.back().logOdds = maxLogOdds * 0.75;
+                    }
+                }
+
+                std::sort(v.begin(), v.end());
+                SemanticsLogOdds output;
+                output.others = others;
+                for(int i = 0; i < v.size(); i++){
+                    output.data[i] = v[v.size() - 1 - i];
+                }
+
+                return output;
+            }catch (const std::exception& e) {
+                // Catch any standard exception
+                std::cerr << "Caught exception: " << e.what() << std::endl;
+            } catch (...) {
+                // Catch any other type of exception (generic catch)
+                std::cerr << "Caught unknown exception!" << std::endl;
             }
 
-            std::sort(v.begin(), v.end());
-            SemanticsLogOdds output;
-            output.others = others;
-            for(int i = 0; i < v.size(); i++)
-                output.data[i] = v[v.size() - 1 - i];
-
-            return output;
         }
 
         for(int i = 0; i < NUM_SEMANTICS; i++)

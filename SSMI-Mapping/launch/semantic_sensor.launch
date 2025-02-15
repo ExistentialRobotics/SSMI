@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<launch>
+
+  <rosparam file="$(find semantic_octomap)/params/semantic_cloud.yaml" command="load"/>
+  <!--<rosparam file="$(find semantic_octomap)/params/semantic_labels.yaml" command="load"/>-->
+  <node pkg="semantic_octomap" type="semantic_sensor_node.py" name="semantic_cloud" output="screen">
+    <param name="agent_name" value="" />
+  </node>
+
+</launch>

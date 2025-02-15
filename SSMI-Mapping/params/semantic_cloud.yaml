@@ -1,20 +1,20 @@
 # Camera intrinsic matrix parameters
 camera:
-  fx: 320
-  fy: 320
-  cx: 320
-  cy: 240
+  fx: 382.12591552734375
+  fy: 381.6585388183594
+  cx: 327.84820556640625
+  cy: 241.3488311767578
 
   width: 640
   height: 480
 
 semantic_pcl:
-  color_image_topic: "/rgbd_camera/image"
-  semantic_image_topic: "/semantic/colored_map"
-  depth_image_topic: "/rgbd_camera/depth_image"
+  color_image_topic: "rgb_image"
+  semantic_image_topic: "/segmented_image"
+  depth_image_topic: "depth_image"
   point_type: 0
-  frame_id: "camera_optic"
+  frame_id: "jackal1/camera_link"
   depth_noise_std: 0.0
   true_class_prob: 1.0
   # set unit_conversion to 1000 if the depth image is in mm
-  unit_conversion: 1.0
+  unit_conversion: 1000.0

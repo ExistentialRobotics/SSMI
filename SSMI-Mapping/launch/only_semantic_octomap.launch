@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<launch>
+
+  <rosparam file="$(find semantic_octomap)/params/octomap_generator.yaml" command="load"/>
+  <node pkg="semantic_octomap" type="semantic_octomap_node" name="semantic_octomap" output="screen"/>
+
+</launch>
