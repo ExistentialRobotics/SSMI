@@ -130,7 +130,7 @@ namespace octomap
                 if(l.data[i].color != ColorOcTreeNode::Color(255,255,255))
                     occOdds += (float) exp(l.data[i].logOdds);
             }
-            return log(occOdds);
+            return clipLogOdds(log(occOdds));
         }
         
         static inline float clipLogOdds(float l, float maxLogOdds, float minLogOdds){

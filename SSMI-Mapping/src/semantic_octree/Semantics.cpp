@@ -253,13 +253,13 @@ namespace octomap
         float others = l.others;
         bool isOthers = true;
         // check for occupancy only measurement (145,145,145)
-        if(obs == ColorOcTreeNode::Color(145,145,145))
+        if(obs == ColorOcTreeNode::Color(145,145,145)) 
         {
             try{
                 //increment log odds of others and current occupancy
-                others += psi * 0.75;
-                if(others > (maxLogOdds * 0.75)){
-                    others = maxLogOdds * 0.75;
+                others += psi;
+                if(others > (maxLogOdds)){
+                    others = maxLogOdds;
                 }
 
                 for(int i = 0; i < NUM_SEMANTICS; i++)
@@ -272,10 +272,14 @@ namespace octomap
                         continue;
                     
                     v.push_back(l.data[i]);
-                    v.back().logOdds += psi * 0.75;    
-                    if(v.back().logOdds > maxLogOdds * 0.75){
-                        v.back().logOdds = maxLogOdds * 0.75;
+                    v.back().logOdds += psi;
+                    if(v.back().logOdds > maxLogOdds){
+                        v.back().logOdds = maxLogOdds;
                     }
+
+                    // 3 probs + odds
+                    // increase all by psi
+                    // 
                 }
 
                 std::sort(v.begin(), v.end());
@@ -286,12 +290,15 @@ namespace octomap
                 }
 
                 return output;
+                
             }catch (const std::exception& e) {
                 // Catch any standard exception
                 std::cerr << "Caught exception: " << e.what() << std::endl;
+                exit(-1);
             } catch (...) {
                 // Catch any other type of exception (generic catch)
                 std::cerr << "Caught unknown exception!" << std::endl;
+                exit(-1);
             }
 
         }
