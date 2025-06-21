@@ -1,5 +1,0 @@
-# Get the run-length encoding (RLE) of multiple rays of a pose
-geometry_msgs/Point[] endPoints
-geometry_msgs/Point origin
----
-semantic_octomap/RayRLE[] RLE_list

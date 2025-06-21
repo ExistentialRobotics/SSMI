@@ -1,0 +1,5 @@
+# Get the run-length encoding (RLE) of multiple rays of a pose
+geometry_msgs/Point[] end_points
+geometry_msgs/Point origin
+---
+ssmi_interface/RayRLE[] rle_list

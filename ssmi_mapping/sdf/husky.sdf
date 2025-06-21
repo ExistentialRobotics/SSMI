@@ -1,0 +1,482 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+
+<model name="husky_seg_cam">
+
+    <link name="base_link">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.000543 -0.084945 0.062329 0 -0 0</pose>
+        <mass>41.064</mass>
+        <inertia>
+          <ixx>0.615397</ixx>
+          <ixy>-0.0240585</ixy>
+          <ixz>-0.120749</ixz>
+          <iyy>1.75388</iyy>
+          <iyz>-0.0028322</iyz>
+          <izz>2.03641</izz>
+        </inertia>
+      </inertial>
+      <collision name="base_link_collision">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9874 0.5709 0.05</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="base_link_collision_bottom">
+        <pose>0 0 0.046 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.80 0.5709 0.095</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="base_link_collision_1">
+        <pose>0 0 0.185625 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.78992 0.5709 0.12375</size>
+          </box>
+        </geometry>
+      </collision>
+      
+      <visual name="base_link_visual">
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/base_link.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name="base_link_fixed_joint_lump__front_bumper_link_visual_3">
+        <pose>0.48 0 0.091 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/bumper.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name="base_link_fixed_joint_lump__rear_bumper_link_visual_4">
+        <pose>-0.48 0 0.091 0 -0 3.14159</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/bumper.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name="base_link_fixed_joint_lump__top_chassis_link_visual_5">
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/top_chassis.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+
+    </link>
+
+  <link name="sensors_link">
+      <!-- Position the sensors link at an appropriate height on top of the Husky -->
+      
+      <pose relative_to="base_link">0 0 0.5 0 0 0</pose> <!-- Adjust the Z value as needed to position above the Husky -->
+      
+      <!-- Camera sensor definition -->
+      <sensor name="rgbd_camera" type="rgbd_camera">
+        <camera>
+          <horizontal_fov>1.570796327</horizontal_fov>          <!-- 90 degrees -->
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <lens>
+            <intrinsics>
+              <fx>320</fx>              <!-- width / (2 * tan(fov[rad] / 2)) -->
+              <fy>320</fy>              <!-- width / (2 * tan(fov[rad] / 2)) -->
+              <cx>320</cx>              <!-- width / 2 -->
+              <cy>240</cy>              <!-- height / 2 -->
+              <skew>0</skew>
+            </intrinsics>
+          </lens>
+        </camera>
+                <always_on>1</always_on>
+                <update_rate>10</update_rate>
+                <visualize>true</visualize>
+                <topic>rgbd_camera</topic>
+                <enable_metrics>true</enable_metrics>
+      </sensor>
+      
+      <!-- Segmentation camera sensor definition -->
+      <sensor name="semantic_segmentation_camera" type="segmentation">
+        <topic>semantic</topic>
+        <camera>
+          <segmentation_type>semantic</segmentation_type>
+          <horizontal_fov>1.570796327</horizontal_fov>          <!-- 90 degrees -->
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <lens>
+            <intrinsics>
+              <fx>320</fx>              <!-- width / (2 * tan(fov[rad] / 2)) -->
+              <fy>320</fy>              <!-- width / (2 * tan(fov[rad] / 2)) -->
+              <cx>320</cx>              <!-- width / 2 -->
+              <cy>240</cy>              <!-- height / 2 -->
+              <skew>0</skew>
+            </intrinsics>
+          </lens>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>true</visualize>
+      </sensor>
+  </link>
+
+    <!-- Joint to connect the sensors_link to the base_link of the Husky -->
+    <joint name="sensors_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>sensors_link</child>
+      <pose>0 0 5 0 0 0</pose>
+    </joint>
+
+    
+    <link name="front_left_wheel_link">
+      <pose relative_to="base_link">0.256 0.2854 0.03282 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>2.637</mass>
+        <inertia>
+          <ixx>0.02467</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.04411</iyy>
+          <iyz>0</iyz>
+          <izz>0.02467</izz>
+        </inertia>
+      </inertial>
+      <collision name="front_left_wheel_link_collision">
+        <pose>0 0 0 1.5707963267948966 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.1143</length>
+            <radius>0.1651</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+07</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu>0.3</mu>
+              <mu2>0.3</mu2>
+              <slip1>0.5</slip1>
+              <slip2>0.5</slip2>
+              <fdir1>1 0 0</fdir1>
+              <fdir2>0 1 0</fdir2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="front_left_wheel_link_visual">
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/wheel.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      
+      <gravity>1</gravity>
+      <velocity_decay/>
+    </link>
+    <joint name="front_left_wheel_joint" type="revolute">
+      <child>front_left_wheel_link</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name="front_right_wheel_link">
+      <pose relative_to="base_link">0.256 -0.2854 0.03282 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>2.637</mass>
+        <inertia>
+          <ixx>0.02467</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.04411</iyy>
+          <iyz>0</iyz>
+          <izz>0.02467</izz>
+        </inertia>
+      </inertial>
+      <collision name="front_right_wheel_link_collision">
+        <pose>0 0 0 1.5707963267948966 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.1143</length>
+            <radius>0.1651</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+07</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu>0.3</mu>
+              <mu2>0.3</mu2>
+              <slip1>0.5</slip1>
+              <slip2>0.5</slip2>
+              <fdir1>1 0 0</fdir1>
+              <fdir2>0 1 0</fdir2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="front_right_wheel_link_visual">
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/wheel.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+    </link>
+    <joint name="front_right_wheel_joint" type="revolute">
+      <child>front_right_wheel_link</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name="rear_left_wheel_link">
+      <pose relative_to="base_link">-0.256 0.2854 0.03282 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>2.637</mass>
+        <inertia>
+          <ixx>0.02467</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.04411</iyy>
+          <iyz>0</iyz>
+          <izz>0.02467</izz>
+        </inertia>
+      </inertial>
+      <collision name="rear_left_wheel_link_collision">
+        <pose>0 0 0 1.5707963267948966 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.1143</length>
+            <radius>0.1651</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+07</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>0.00062</slip1>
+              <slip2>0</slip2>
+              <fdir1>1 0 0</fdir1>
+              <fdir2>0 1 0</fdir2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rear_left_wheel_link_visual">
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/wheel.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+    </link>
+    <joint name="rear_left_wheel_joint" type="revolute">
+      <child>rear_left_wheel_link</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name="rear_right_wheel_link">
+      <pose relative_to="base_link">-0.256 -0.2854 0.03282 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>2.637</mass>
+        <inertia>
+          <ixx>0.02467</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.04411</iyy>
+          <iyz>0</iyz>
+          <izz>0.02467</izz>
+        </inertia>
+      </inertial>
+      <collision name="rear_right_wheel_link_collision">
+        <pose>0 0 0 1.5707963267948966 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.1143</length>
+            <radius>0.1651</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+07</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>0.00062</slip1>
+              <slip2>0</slip2>
+              <fdir1>1 0 0</fdir1>
+              <fdir2>0 1 0</fdir2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rear_right_wheel_link_visual">
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/ctu_cras_norlab_husky_sensor_config_1/tip/files/meshes/wheel.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+    </link>
+    <joint name="rear_right_wheel_joint" type="revolute">
+      <child>rear_right_wheel_link</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    
+    <static>0</static>
+      <plugin
+        filename="ignition-gazebo-diff-drive-system"
+        name="ignition::gazebo::systems::DiffDrive">
+        <!-- Ensure the joint names match those defined in your model -->
+        <left_joint>rear_left_wheel_joint</left_joint>
+        <right_joint>rear_right_wheel_joint</right_joint>
+        <!-- Adjust wheel separation and radius based on your model's specifications -->
+        <wheel_separation>0.5708</wheel_separation> <!-- Example value, adjust accordingly -->
+        <wheel_radius>0.18282</wheel_radius> <!-- Example value, adjust accordingly -->
+        <odom_publish_frequency>1</odom_publish_frequency>
+        <max_linear_acceleration>2</max_linear_acceleration>
+        <min_linear_acceleration>-2</min_linear_acceleration>
+        <max_angular_acceleration>2</max_angular_acceleration>
+        <min_angular_acceleration>-2</min_angular_acceleration>
+        <max_linear_velocity>10</max_linear_velocity> <!-- Adjust based on desired max speed -->
+        <min_linear_velocity>-10</min_linear_velocity>
+        <max_angular_velocity>10</max_angular_velocity>
+        <min_angular_velocity>-10</min_angular_velocity>
+        <!-- Add topic to control the robot using keyboard plugin output -->
+        <topic>/model/husky_seg_cam/cmd_vel</topic>
+    </plugin>
+    <plugin
+        filename="ignition-gazebo-joint-state-publisher-system"
+        name="ignition::gazebo::systems::JointStatePublisher">
+    </plugin>
+        <!-- Pose Publisher Plugin for Husky Model -->
+    <plugin 
+        filename="ignition-gazebo-pose-publisher-system"
+        name="ignition::gazebo::systems::PosePublisher">
+        <publish_link_pose>false</publish_link_pose>
+        <publish_sensor_pose>false</publish_sensor_pose>
+        <publish_collision_pose>false</publish_collision_pose>
+        <publish_visual_pose>false</publish_visual_pose>
+        <publish_nested_model_pose>true</publish_nested_model_pose>
+        <use_pose_vector_msg>false</use_pose_vector_msg> <!-- Use standard pose message format -->
+    </plugin>
+    
+    
+
+
+  </model>
+
+</sdf>
