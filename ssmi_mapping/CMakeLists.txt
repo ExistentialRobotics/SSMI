@@ -25,15 +25,32 @@ find_package(rclpy REQUIRED)
 
 ament_export_include_directories(include)
 
-add_executable(octomap_generator_ros src/semantic_octomap_node/octomap_generator_ros.cpp
-  src/semantic_octomap_node/octomap_generator.cpp
-  src/semantic_octree/Semantics.cpp
+add_library(semantic_octree
+    src/semantic_octree/Semantics.cpp
+    src/semantic_octomap_node/octomap_generator.cpp
 )
 
-target_include_directories(octomap_generator_ros
+target_include_directories(semantic_octree
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+ament_target_dependencies(
+  semantic_octree
+  rclcpp
+  pcl_ros
+  pcl_conversions
+  octomap
+  octomap_msgs
+  ssmi_interface
+  geometry_msgs
+  tf2_eigen
+  tf2
+)
+
+add_executable(octomap_generator_ros 
+    src/semantic_octomap_node/octomap_generator_ros.cpp
 )
 
 ament_target_dependencies(
@@ -53,8 +70,18 @@ ament_target_dependencies(
   tf2
 )
 
+target_link_libraries(octomap_generator_ros
+  semantic_octree
+)
+
 ament_python_install_package(${PROJECT_NAME})
 
+install(
+  PROGRAMS
+  ${PROJECT_NAME}/dynamic_tf.py
+  ${PROJECT_NAME}/semantic_sensor_node.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 install(
   TARGETS
   octomap_generator_ros
@@ -63,12 +90,6 @@ install(
 install(
   DIRECTORY include/
   DESTINATION include
-)
-install(
-    DIRECTORY scripts/
-    DESTINATION lib/${PROJECT_NAME}
-    FILES_MATCHING PATTERN "*.py"
-    PATTERN "__pycache__" EXCLUDE
 )
 install(DIRECTORY
   launch
