@@ -20,7 +20,7 @@ SSMI is implemented as two ROS packages, which can be built on x86-64 and ARM-ba
 - Autonomous exploration using Semantic Shannon Mutual Information ([SSMI-Planning](https://github.com/ExistentialRobotics/SSMI/tree/master/SSMI-Planning))
 
 <p align="center">
-    <a href="https://www.youtube.com/embed/KosSp3znqFo">
+    <a href="https://www.youtube.com/embed/JOCRIObL8eQ">
     <img src="docs/media/1.png" alt="SSMI">
     </a>
 </p>
