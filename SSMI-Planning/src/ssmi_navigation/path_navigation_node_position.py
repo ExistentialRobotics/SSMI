@@ -21,7 +21,7 @@ class PathNavigation:
         self.alpha = rospy.get_param('/planning/interpolation/alpha')
         self.SE2_radius = rospy.get_param('/planning/interpolation/radius')
         self.world_frame_id = rospy.get_param('/octomap/world_frame_id')
-        
+        self.robot_frame_id = rospy.get_param('/planning/robot_frame_id')
         self.dist = rospy.get_param('/planning/goal_check_radius')
         
         self.path_sub = message_filters.Subscriber('/planner/path', Path, queue_size = 1)
@@ -35,8 +35,6 @@ class PathNavigation:
         
         self.position_cmd_pub = rospy.Publisher("/planner/position_cmd", PoseStamped, queue_size = 1)
         
-        self.world_frame_id = 'world'
-        self.robot_frame_id = 'base_link'
         self.tf_listener = tf.TransformListener()
 
     def get_pose_from_tf(self, from_frame_id):
